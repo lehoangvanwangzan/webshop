@@ -1,0 +1,1488 @@
+// ============================================================
+// Prisma Schema — E-Commerce Webshop
+// Database: MySQL  |  Naming: shop_ prefix, snake_case
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ============================================================
+// CORE: USERS & AUTH
+// ============================================================
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  password     String   @db.VarChar(255)
+  full_name    String   @db.VarChar(100)
+  phone        String?  @db.VarChar(20)
+  role         UserRole @default(customer)
+  is_active    Boolean  @default(true)
+  avatar_url   String?  @db.VarChar(255)
+  last_login   DateTime?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // Relations
+  customer             Customer?
+  audit_logs           AuditLog[]
+  inventory_movements  InventoryMovement[]
+  price_history        ProductPriceHistory[]
+  review_responses     ReviewResponse[]
+  notifications        Notification[]
+  system_settings      SystemSetting[]
+  reconciliations      PaymentReconciliation[]
+
+  @@map("shop_users")
+}
+
+enum UserRole {
+  admin
+  staff
+  customer
+
+  @@map("user_role")
+}
+
+model Customer {
+  id              Int       @id @default(autoincrement())
+  user_id         Int       @unique
+  date_of_birth   DateTime? @db.Date
+  gender          Gender?
+  address         String?   @db.Text
+  city            String?   @db.VarChar(100)
+  district        String?   @db.VarChar(100)
+  ward            String?   @db.VarChar(100)
+  total_orders    Int       @default(0)
+  total_spent     Decimal   @default(0) @db.Decimal(12, 2)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  user                    User                     @relation(fields: [user_id], references: [id])
+  orders                  Order[]
+  carts                   Cart[]
+  wishlists               Wishlist[]
+  reviews                 ProductReview[]
+  return_requests         ReturnRequest[]
+  loyalty_account         CustomerLoyaltyAccount?
+  loyalty_transactions    LoyaltyTransaction[]
+  coupon_redemptions      CouponRedemption[]
+  email_logs              EmailLog[]
+  customer_analytics      CustomerAnalytics[]
+  segment_assignments     CustomerSegmentAssignment[]
+
+  @@map("shop_customers")
+}
+
+enum Gender {
+  male
+  female
+  other
+
+  @@map("gender")
+}
+
+// ============================================================
+// CORE: CATEGORIES & PRODUCTS
+// ============================================================
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  slug        String    @unique @db.VarChar(120)
+  description String?   @db.Text
+  image_url   String?   @db.VarChar(255)
+  parent_id   Int?
+  sort_order  Int       @default(0)
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Self-referencing
+  parent      Category?  @relation("CategoryTree", fields: [parent_id], references: [id])
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+
+  @@map("shop_categories")
+}
+
+model Product {
+  id               Int      @id @default(autoincrement())
+  category_id      Int
+  name             String   @db.VarChar(200)
+  slug             String   @unique @db.VarChar(220)
+  description      String?  @db.Text
+  short_description String? @db.VarChar(500)
+  sku              String   @unique @db.VarChar(100)
+  price            Decimal  @db.Decimal(10, 2)
+  discount_price   Decimal? @db.Decimal(10, 2)
+  cost_price       Decimal? @db.Decimal(10, 2)
+  stock            Int      @default(0)
+  weight           Decimal? @db.Decimal(10, 2)
+  is_active        Boolean  @default(true)
+  is_featured      Boolean  @default(false)
+  supplier_id      Int?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  // Relations
+  category             Category               @relation(fields: [category_id], references: [id])
+  supplier             Supplier?              @relation(fields: [supplier_id], references: [id])
+  images               ProductImage[]
+  order_items          OrderItem[]
+  cart_items           CartItem[]
+  wishlist_items       WishlistItem[]
+  reviews              ProductReview[]
+  rating_summary       ProductRatingSummary?
+  inventory_stocks     InventoryStock[]
+  inventory_movements  InventoryMovement[]
+  stock_alerts         StockAlert[]
+  price_history        ProductPriceHistory[]
+  bulk_pricing         BulkPricing[]
+  supplier_products    SupplierProduct[]
+  warehouse_locations  WarehouseLocation[]
+  warehouse_transfers  WarehouseTransfer[]
+  product_analytics    ProductAnalytics[]
+
+  @@index([category_id])
+  @@index([is_active, is_featured])
+  @@map("shop_products")
+}
+
+model ProductImage {
+  id            Int      @id @default(autoincrement())
+  product_id    Int
+  image_url     String   @db.VarChar(255)
+  alt_text      String?  @db.VarChar(255)
+  display_order Int      @default(0)
+  is_primary    Boolean  @default(false)
+  created_at    DateTime @default(now())
+
+  product       Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+  @@map("shop_product_images")
+}
+
+// ============================================================
+// CORE: ORDERS
+// ============================================================
+
+model Order {
+  id                Int         @id @default(autoincrement())
+  customer_id       Int
+  order_number      String      @unique @db.VarChar(50)
+  status            OrderStatus @default(pending)
+  subtotal          Decimal     @db.Decimal(12, 2)
+  discount_amount   Decimal     @default(0) @db.Decimal(10, 2)
+  shipping_fee      Decimal     @default(0) @db.Decimal(10, 2)
+  tax_amount        Decimal     @default(0) @db.Decimal(10, 2)
+  total_amount      Decimal     @db.Decimal(12, 2)
+  shipping_address  String      @db.Text
+  billing_address   String?     @db.Text
+  notes             String?     @db.Text
+  coupon_id         Int?
+  paid_at           DateTime?
+  cancelled_at      DateTime?
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
+
+  // Relations
+  customer           Customer            @relation(fields: [customer_id], references: [id])
+  coupon             Coupon?             @relation(fields: [coupon_id], references: [id])
+  items              OrderItem[]
+  shipments          Shipment[]
+  return_requests    ReturnRequest[]
+  refunds            Refund[]
+  transactions       Transaction[]
+  coupon_redemptions CouponRedemption[]
+  order_analytics    OrderAnalytics?
+
+  @@index([customer_id])
+  @@index([status])
+  @@index([created_at])
+  @@map("shop_orders")
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  refunded
+
+  @@map("order_status")
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  order_id    Int
+  product_id  Int
+  quantity    Int
+  unit_price  Decimal @db.Decimal(10, 2)
+  subtotal    Decimal @db.Decimal(12, 2)
+  created_at  DateTime @default(now())
+
+  // Relations
+  order        Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product      Product @relation(fields: [product_id], references: [id])
+  return_items ReturnItem[]
+
+  @@index([order_id])
+  @@index([product_id])
+  @@map("shop_order_details")
+}
+
+// ============================================================
+// MODULE 1: LOGISTICS & SHIPPING
+// ============================================================
+
+model ShippingProvider {
+  id            Int      @id @default(autoincrement())
+  provider_name String   @db.VarChar(100)
+  provider_code String   @unique @db.VarChar(50)
+  api_endpoint  String?  @db.VarChar(255)
+  api_key       String?  @db.VarChar(255)
+  is_active     Boolean  @default(true)
+  base_fee      Decimal  @default(0) @db.Decimal(10, 2)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  methods       ShippingMethod[]
+  shipments     Shipment[]
+
+  @@index([is_active])
+  @@map("shop_shipping_providers")
+}
+
+model ShippingMethod {
+  id             Int      @id @default(autoincrement())
+  provider_id    Int
+  method_name    String   @db.VarChar(100)
+  estimated_days Int?
+  fee_formula    String?  @db.VarChar(255)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  provider  ShippingProvider @relation(fields: [provider_id], references: [id])
+  shipments Shipment[]
+
+  @@map("shop_shipping_methods")
+}
+
+model Shipment {
+  id                     Int            @id @default(autoincrement())
+  order_id               Int
+  shipping_method_id     Int
+  provider_id            Int
+  tracking_number        String         @unique @db.VarChar(100)
+  sender_address         String?        @db.Text
+  recipient_address      String?        @db.Text
+  shipping_fee           Decimal        @default(0) @db.Decimal(10, 2)
+  weight                 Decimal?       @db.Decimal(10, 2)
+  dimensions             Json?
+  shipped_date           DateTime?
+  expected_delivery_date DateTime?
+  actual_delivery_date   DateTime?
+  status                 ShipmentStatus @default(pending)
+  created_at             DateTime       @default(now())
+  updated_at             DateTime       @updatedAt
+
+  order           Order            @relation(fields: [order_id], references: [id])
+  shipping_method ShippingMethod   @relation(fields: [shipping_method_id], references: [id])
+  provider        ShippingProvider @relation(fields: [provider_id], references: [id])
+  tracking_events ShipmentTracking[]
+
+  @@index([status])
+  @@index([shipped_date])
+  @@map("shop_shipments")
+}
+
+enum ShipmentStatus {
+  pending
+  picked_up
+  in_transit
+  delivered
+  failed
+
+  @@map("shipment_status")
+}
+
+model ShipmentTracking {
+  id          BigInt   @id @default(autoincrement())
+  shipment_id Int
+  status      String   @db.VarChar(50)
+  location    String?  @db.VarChar(255)
+  description String?  @db.Text
+  timestamp   DateTime
+  created_at  DateTime @default(now())
+
+  shipment    Shipment @relation(fields: [shipment_id], references: [id], onDelete: Cascade)
+
+  @@index([shipment_id])
+  @@index([timestamp])
+  @@map("shop_shipment_tracking")
+}
+
+// ============================================================
+// MODULE 2: RETURNS & REFUNDS
+// ============================================================
+
+model ReturnReason {
+  id          Int      @id @default(autoincrement())
+  reason_name String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+
+  return_requests ReturnRequest[]
+
+  @@map("shop_return_reasons")
+}
+
+model ReturnRequest {
+  id                     Int           @id @default(autoincrement())
+  order_id               Int
+  customer_id            Int
+  return_reason_id       Int
+  notes                  String?       @db.Text
+  status                 ReturnStatus  @default(pending)
+  requested_date         DateTime      @default(now())
+  approved_date          DateTime?
+  estimated_return_date  DateTime?
+  received_date          DateTime?
+  refunded_date          DateTime?
+  created_at             DateTime      @default(now())
+  updated_at             DateTime      @updatedAt
+
+  order         Order        @relation(fields: [order_id], references: [id])
+  customer      Customer     @relation(fields: [customer_id], references: [id])
+  return_reason ReturnReason @relation(fields: [return_reason_id], references: [id])
+  items         ReturnItem[]
+  refunds       Refund[]
+
+  @@index([status])
+  @@map("shop_return_requests")
+}
+
+enum ReturnStatus {
+  pending
+  approved
+  rejected
+  received
+  refunded
+
+  @@map("return_status")
+}
+
+model ReturnItem {
+  id                Int            @id @default(autoincrement())
+  return_request_id Int
+  order_item_id     Int
+  product_id        Int
+  quantity          Int
+  condition         ItemCondition  @default(used)
+  refund_amount     Decimal        @db.Decimal(10, 2)
+  created_at        DateTime       @default(now())
+
+  return_request ReturnRequest @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
+  order_item     OrderItem     @relation(fields: [order_item_id], references: [id])
+
+  @@map("shop_return_items")
+}
+
+enum ItemCondition {
+  new
+  used
+  damaged
+
+  @@map("item_condition")
+}
+
+model Refund {
+  id                Int          @id @default(autoincrement())
+  return_request_id Int
+  order_id          Int
+  refund_amount     Decimal      @db.Decimal(10, 2)
+  refund_method     RefundMethod
+  transaction_id    String?      @db.VarChar(100)
+  status            RefundStatus @default(pending)
+  refund_date       DateTime?
+  notes             String?      @db.Text
+  created_at        DateTime     @default(now())
+  updated_at        DateTime     @updatedAt
+
+  return_request ReturnRequest @relation(fields: [return_request_id], references: [id])
+  order          Order         @relation(fields: [order_id], references: [id])
+
+  @@map("shop_refunds")
+}
+
+enum RefundMethod {
+  original_payment
+  store_credit
+  bank_transfer
+
+  @@map("refund_method")
+}
+
+enum RefundStatus {
+  pending
+  processing
+  completed
+  failed
+
+  @@map("refund_status")
+}
+
+// ============================================================
+// MODULE 3: INVENTORY MANAGEMENT
+// ============================================================
+
+model Store {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  code         String   @unique @db.VarChar(50)
+  address      String?  @db.Text
+  city         String?  @db.VarChar(100)
+  phone        String?  @db.VarChar(20)
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  inventory_stocks     InventoryStock[]
+  inventory_movements  InventoryMovement[]
+  stock_alerts         StockAlert[]
+
+  @@map("shop_stores")
+}
+
+model InventoryStock {
+  id               Int       @id @default(autoincrement())
+  product_id       Int
+  store_id         Int
+  current_stock    Int       @default(0)
+  reserved_stock   Int       @default(0)
+  min_stock_level  Int       @default(0)
+  reorder_point    Int       @default(0)
+  reorder_quantity Int       @default(0)
+  last_stock_check DateTime?
+  updated_at       DateTime  @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id])
+  store   Store   @relation(fields: [store_id], references: [id])
+
+  @@unique([product_id, store_id])
+  @@index([current_stock])
+  @@map("shop_inventory_stocks")
+}
+
+model InventoryMovement {
+  id             BigInt        @id @default(autoincrement())
+  product_id     Int
+  store_id       Int
+  movement_type  MovementType
+  quantity       Int
+  reference_id   Int?
+  reference_type String?       @db.VarChar(50)
+  notes          String?       @db.Text
+  created_by     Int
+  created_at     DateTime      @default(now())
+
+  product  Product @relation(fields: [product_id], references: [id])
+  store    Store   @relation(fields: [store_id], references: [id])
+  user     User    @relation(fields: [created_by], references: [id])
+
+  @@index([movement_type])
+  @@index([product_id, store_id, created_at])
+  @@map("shop_inventory_movements")
+}
+
+enum MovementType {
+  import
+  export
+  sale
+  return
+  adjustment
+  damage
+
+  @@map("movement_type")
+}
+
+model StockAlert {
+  id            Int        @id @default(autoincrement())
+  product_id    Int
+  store_id      Int
+  alert_type    AlertType
+  current_stock Int
+  threshold     Int
+  is_resolved   Boolean    @default(false)
+  resolved_at   DateTime?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id])
+  store   Store   @relation(fields: [store_id], references: [id])
+
+  @@index([alert_type])
+  @@index([is_resolved])
+  @@map("shop_stock_alerts")
+}
+
+enum AlertType {
+  low_stock
+  overstock
+  expiring_soon
+
+  @@map("alert_type")
+}
+
+// ============================================================
+// MODULE 4: SHOPPING CART & WISHLIST
+// ============================================================
+
+model Cart {
+  id           Int        @id @default(autoincrement())
+  customer_id  Int?
+  session_id   String?    @db.VarChar(100)
+  status       CartStatus @default(active)
+  total_items  Int        @default(0)
+  total_amount Decimal    @default(0) @db.Decimal(12, 2)
+  abandoned_at DateTime?
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+
+  customer Customer?  @relation(fields: [customer_id], references: [id])
+  items    CartItem[]
+
+  @@index([customer_id])
+  @@index([session_id])
+  @@map("shop_carts")
+}
+
+enum CartStatus {
+  active
+  abandoned
+  converted
+
+  @@map("cart_status")
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  cart_id    Int
+  product_id Int
+  quantity   Int
+  unit_price Decimal  @db.Decimal(10, 2)
+  added_at   DateTime @default(now())
+
+  cart    Cart    @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@unique([cart_id, product_id])
+  @@map("shop_cart_items")
+}
+
+model Wishlist {
+  id               Int      @id @default(autoincrement())
+  customer_id      Int
+  wishlist_name    String   @default("My Wishlist") @db.VarChar(100)
+  is_public        Boolean  @default(false)
+  visibility_link  String?  @db.VarChar(100)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  customer Customer      @relation(fields: [customer_id], references: [id])
+  items    WishlistItem[]
+
+  @@map("shop_wishlists")
+}
+
+model WishlistItem {
+  id          Int      @id @default(autoincrement())
+  wishlist_id Int
+  product_id  Int
+  priority    Int      @default(0)
+  added_at    DateTime @default(now())
+
+  wishlist Wishlist @relation(fields: [wishlist_id], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [product_id], references: [id])
+
+  @@unique([wishlist_id, product_id])
+  @@map("shop_wishlist_items")
+}
+
+// ============================================================
+// MODULE 5: NOTIFICATIONS & MESSAGES
+// ============================================================
+
+model Notification {
+  id           BigInt           @id @default(autoincrement())
+  user_id      Int
+  type         NotificationType
+  title        String           @db.VarChar(255)
+  message      String           @db.Text
+  related_id   Int?
+  is_read      Boolean          @default(false)
+  read_at      DateTime?
+  created_at   DateTime         @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, is_read])
+  @@map("shop_notifications")
+}
+
+enum NotificationType {
+  order
+  shipment
+  review
+  promotion
+  system
+
+  @@map("notification_type")
+}
+
+model EmailTemplate {
+  id            Int      @id @default(autoincrement())
+  template_name String   @unique @db.VarChar(100)
+  subject       String   @db.VarChar(255)
+  body          String   @db.LongText
+  variables     Json?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  email_logs     EmailLog[]
+  campaign_emails CampaignEmail[]
+
+  @@map("shop_email_templates")
+}
+
+model EmailLog {
+  id               BigInt      @id @default(autoincrement())
+  customer_id      Int?
+  template_id      Int
+  recipient_email  String      @db.VarChar(255)
+  subject          String      @db.VarChar(255)
+  status           EmailStatus @default(pending)
+  sent_at          DateTime?
+  error_message    String?     @db.Text
+  created_at       DateTime    @default(now())
+
+  customer Customer?     @relation(fields: [customer_id], references: [id])
+  template EmailTemplate @relation(fields: [template_id], references: [id])
+
+  @@index([customer_id])
+  @@index([status])
+  @@index([created_at])
+  @@map("shop_email_logs")
+}
+
+enum EmailStatus {
+  pending
+  sent
+  bounced
+  failed
+
+  @@map("email_status")
+}
+
+// ============================================================
+// MODULE 6: PRICING & HISTORY
+// ============================================================
+
+model ProductPriceHistory {
+  id             Int      @id @default(autoincrement())
+  product_id     Int
+  old_price      Decimal  @db.Decimal(10, 2)
+  new_price      Decimal  @db.Decimal(10, 2)
+  discount_price Decimal? @db.Decimal(10, 2)
+  reason         String?  @db.VarChar(255)
+  effective_date DateTime
+  end_date       DateTime?
+  changed_by     Int
+  created_at     DateTime @default(now())
+
+  product Product @relation(fields: [product_id], references: [id])
+  user    User    @relation(fields: [changed_by], references: [id])
+
+  @@index([product_id])
+  @@index([effective_date])
+  @@map("shop_product_price_history")
+}
+
+model BulkPricing {
+  id           Int      @id @default(autoincrement())
+  product_id   Int
+  min_quantity Int
+  max_quantity Int?
+  unit_price   Decimal  @db.Decimal(10, 2)
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("shop_bulk_pricing")
+}
+
+// ============================================================
+// MODULE 7: ANALYTICS & REPORTING
+// ============================================================
+
+model OrderAnalytics {
+  id                  Int      @id @default(autoincrement())
+  date                DateTime @unique @db.Date
+  order_id            Int?     @unique
+  total_orders        Int      @default(0)
+  total_revenue       Decimal  @default(0) @db.Decimal(12, 2)
+  average_order_value Decimal  @default(0) @db.Decimal(10, 2)
+  unique_customers    Int      @default(0)
+  new_customers       Int      @default(0)
+  created_at          DateTime @default(now())
+
+  order Order? @relation(fields: [order_id], references: [id])
+
+  @@map("shop_order_analytics")
+}
+
+model ProductAnalytics {
+  id               BigInt   @id @default(autoincrement())
+  product_id       Int
+  date             DateTime @db.Date
+  views            Int      @default(0)
+  add_to_cart_count Int     @default(0)
+  purchase_count   Int      @default(0)
+  revenue          Decimal  @default(0) @db.Decimal(12, 2)
+  conversion_rate  Decimal  @default(0) @db.Decimal(5, 2)
+  created_at       DateTime @default(now())
+
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@unique([product_id, date])
+  @@map("shop_product_analytics")
+}
+
+model CustomerAnalytics {
+  id                      BigInt   @id @default(autoincrement())
+  customer_id             Int
+  date                    DateTime @db.Date
+  purchase_count          Int      @default(0)
+  total_spent             Decimal  @default(0) @db.Decimal(12, 2)
+  average_order_value     Decimal  @default(0) @db.Decimal(10, 2)
+  last_purchase_date      DateTime? @db.Date
+  days_since_last_purchase Int?
+  created_at              DateTime @default(now())
+
+  customer Customer @relation(fields: [customer_id], references: [id])
+
+  @@unique([customer_id, date])
+  @@map("shop_customer_analytics")
+}
+
+// ============================================================
+// MODULE 8: AUDIT & LOGS
+// ============================================================
+
+model AuditLog {
+  id          BigInt   @id @default(autoincrement())
+  user_id     Int?
+  action      String   @db.VarChar(100)
+  entity_type String   @db.VarChar(100)
+  entity_id   Int
+  old_values  Json?
+  new_values  Json?
+  ip_address  String?  @db.VarChar(45)
+  user_agent  String?  @db.Text
+  created_at  DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([action])
+  @@index([entity_type, entity_id, created_at])
+  @@map("shop_audit_logs")
+}
+
+// ============================================================
+// MODULE 9: SETTINGS & CONFIGURATION
+// ============================================================
+
+model SystemSetting {
+  id            Int          @id @default(autoincrement())
+  setting_key   String       @unique @db.VarChar(100)
+  setting_value String       @db.LongText
+  data_type     SettingType
+  description   String?      @db.Text
+  updated_by    Int?
+  updated_at    DateTime     @updatedAt
+
+  user User? @relation(fields: [updated_by], references: [id])
+
+  @@map("shop_system_settings")
+}
+
+enum SettingType {
+  string
+  number
+  boolean
+  json
+
+  @@map("setting_type")
+}
+
+model TaxSetting {
+  id         Int      @id @default(autoincrement())
+  region     String   @unique @db.VarChar(100)
+  tax_rate   Decimal  @db.Decimal(5, 2)
+  tax_name   String   @db.VarChar(100)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("shop_tax_settings")
+}
+
+// ============================================================
+// MODULE 11: SUPPLIER MANAGEMENT
+// ============================================================
+
+model Supplier {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(100)
+  contact_person  String?  @db.VarChar(100)
+  email           String?  @db.VarChar(100)
+  phone           String?  @db.VarChar(20)
+  address         String?  @db.Text
+  city            String?  @db.VarChar(100)
+  country         String?  @db.VarChar(100)
+  tax_id          String?  @db.VarChar(50)
+  payment_terms   String?  @db.VarChar(50)
+  lead_time_days  Int?
+  min_order_qty   Int?
+  rating          Decimal? @db.Decimal(3, 2)
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  products     Product[]
+  supplier_products SupplierProduct[]
+  performance  SupplierPerformance[]
+  payments     SupplierPayment[]
+
+  @@map("shop_suppliers")
+}
+
+model SupplierProduct {
+  id                    Int      @id @default(autoincrement())
+  supplier_id           Int
+  product_id            Int
+  supplier_product_code String?  @db.VarChar(100)
+  supplier_price        Decimal  @db.Decimal(10, 2)
+  moq                   Int      @default(1)
+  lead_time             Int?
+  availability          String?  @db.VarChar(50)
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  supplier Supplier @relation(fields: [supplier_id], references: [id])
+  product  Product  @relation(fields: [product_id], references: [id])
+
+  @@unique([supplier_id, product_id])
+  @@map("shop_supplier_products")
+}
+
+model SupplierPerformance {
+  id                      Int      @id @default(autoincrement())
+  supplier_id             Int
+  date                    DateTime @db.Date
+  total_orders            Int      @default(0)
+  on_time_delivery_rate   Decimal  @default(0) @db.Decimal(5, 2)
+  quality_score           Decimal  @default(0) @db.Decimal(5, 2)
+  price_competitiveness   Decimal  @default(0) @db.Decimal(5, 2)
+  created_at              DateTime @default(now())
+
+  supplier Supplier @relation(fields: [supplier_id], references: [id])
+
+  @@map("shop_supplier_performance")
+}
+
+model SupplierPayment {
+  id               Int                   @id @default(autoincrement())
+  supplier_id      Int
+  payment_amount   Decimal               @db.Decimal(12, 2)
+  payment_method   SupplierPaymentMethod
+  payment_date     DateTime?
+  due_date         DateTime?
+  status           SupplierPaymentStatus @default(pending)
+  reference_number String?               @db.VarChar(100)
+  created_at       DateTime              @default(now())
+  updated_at       DateTime              @updatedAt
+
+  supplier Supplier @relation(fields: [supplier_id], references: [id])
+
+  @@map("shop_supplier_payments")
+}
+
+enum SupplierPaymentMethod {
+  bank_transfer
+  check
+  credit
+
+  @@map("supplier_payment_method")
+}
+
+enum SupplierPaymentStatus {
+  pending
+  paid
+  overdue
+
+  @@map("supplier_payment_status")
+}
+
+// ============================================================
+// MODULE 12: WAREHOUSE MANAGEMENT
+// ============================================================
+
+model Warehouse {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(100)
+  warehouse_code String   @unique @db.VarChar(50)
+  address        String?  @db.Text
+  city           String?  @db.VarChar(100)
+  capacity       Int?
+  manager_id     Int?
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  zones                WarehouseZone[]
+  transfers_from       WarehouseTransfer[] @relation("TransferFrom")
+  transfers_to         WarehouseTransfer[] @relation("TransferTo")
+
+  @@map("shop_warehouses")
+}
+
+model WarehouseZone {
+  id           Int      @id @default(autoincrement())
+  warehouse_id Int
+  zone_name    String   @db.VarChar(50)
+  zone_code    String   @unique @db.VarChar(50)
+  rack_count   Int      @default(0)
+  shelf_count  Int      @default(0)
+  capacity     Int?
+  current_usage Int     @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  warehouse Warehouse      @relation(fields: [warehouse_id], references: [id])
+  racks     WarehouseRack[]
+
+  @@map("shop_warehouse_zones")
+}
+
+model WarehouseRack {
+  id           Int          @id @default(autoincrement())
+  zone_id      Int
+  rack_number  String       @db.VarChar(50)
+  rack_code    String       @unique @db.VarChar(50)
+  shelf_count  Int          @default(0)
+  capacity     Int?
+  current_load Int          @default(0)
+  status       RackStatus   @default(active)
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+
+  zone      WarehouseZone       @relation(fields: [zone_id], references: [id])
+  locations WarehouseLocation[]
+
+  @@map("shop_warehouse_racks")
+}
+
+enum RackStatus {
+  active
+  maintenance
+  full
+
+  @@map("rack_status")
+}
+
+model WarehouseLocation {
+  id           Int      @id @default(autoincrement())
+  rack_id      Int
+  shelf_number Int
+  product_id   Int
+  quantity     Int      @default(0)
+  last_updated DateTime @updatedAt
+
+  rack    WarehouseRack @relation(fields: [rack_id], references: [id])
+  product Product       @relation(fields: [product_id], references: [id])
+
+  @@unique([rack_id, shelf_number, product_id])
+  @@map("shop_warehouse_locations")
+}
+
+model WarehouseTransfer {
+  id                Int              @id @default(autoincrement())
+  from_warehouse_id Int
+  to_warehouse_id   Int
+  product_id        Int
+  quantity          Int
+  transfer_date     DateTime
+  arrival_date      DateTime?
+  status            TransferStatus   @default(pending)
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  from_warehouse Warehouse @relation("TransferFrom", fields: [from_warehouse_id], references: [id])
+  to_warehouse   Warehouse @relation("TransferTo", fields: [to_warehouse_id], references: [id])
+  product        Product   @relation(fields: [product_id], references: [id])
+
+  @@map("shop_warehouse_transfers")
+}
+
+enum TransferStatus {
+  pending
+  in_transit
+  received
+
+  @@map("transfer_status")
+}
+
+// ============================================================
+// MODULE 13: PRODUCT REVIEWS & RATINGS
+// ============================================================
+
+model ProductReview {
+  id                Int      @id @default(autoincrement())
+  product_id        Int
+  customer_id       Int
+  order_id          Int?
+  rating            Int      @db.TinyInt
+  title             String?  @db.VarChar(255)
+  content           String?  @db.Text
+  helpful_count     Int      @default(0)
+  unhelpful_count   Int      @default(0)
+  verified_purchase Boolean  @default(false)
+  is_approved       Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  product   Product           @relation(fields: [product_id], references: [id])
+  customer  Customer          @relation(fields: [customer_id], references: [id])
+  images    ReviewImage[]
+  responses ReviewResponse[]
+
+  @@index([product_id])
+  @@index([customer_id])
+  @@map("shop_product_reviews")
+}
+
+model ReviewImage {
+  id            Int      @id @default(autoincrement())
+  review_id     Int
+  image_url     String   @db.VarChar(255)
+  display_order Int      @default(0)
+  created_at    DateTime @default(now())
+
+  review ProductReview @relation(fields: [review_id], references: [id], onDelete: Cascade)
+
+  @@map("shop_review_images")
+}
+
+model ReviewResponse {
+  id            Int      @id @default(autoincrement())
+  review_id     Int
+  responder_id  Int
+  response_text String   @db.Text
+  response_date DateTime @default(now())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  review    ProductReview @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  responder User          @relation(fields: [responder_id], references: [id])
+
+  @@map("shop_review_responses")
+}
+
+model ProductRatingSummary {
+  id             Int      @id @default(autoincrement())
+  product_id     Int      @unique
+  average_rating Decimal  @default(0) @db.Decimal(3, 2)
+  total_reviews  Int      @default(0)
+  rating_5_count Int      @default(0)
+  rating_4_count Int      @default(0)
+  rating_3_count Int      @default(0)
+  rating_2_count Int      @default(0)
+  rating_1_count Int      @default(0)
+  updated_at     DateTime @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("shop_product_rating_summary")
+}
+
+// ============================================================
+// MODULE 14: CUSTOMER SEGMENTS & LOYALTY
+// ============================================================
+
+model CustomerSegment {
+  id            Int      @id @default(autoincrement())
+  segment_name  String   @db.VarChar(100)
+  segment_code  String   @unique @db.VarChar(50)
+  criteria_json Json?
+  priority      Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  assignments CustomerSegmentAssignment[]
+  campaigns   Campaign[]
+
+  @@map("shop_customer_segments")
+}
+
+model CustomerSegmentAssignment {
+  id          Int      @id @default(autoincrement())
+  customer_id Int
+  segment_id  Int
+  assigned_at DateTime @default(now())
+
+  customer Customer        @relation(fields: [customer_id], references: [id])
+  segment  CustomerSegment @relation(fields: [segment_id], references: [id])
+
+  @@unique([customer_id, segment_id])
+  @@map("shop_customer_segment_assignments")
+}
+
+model LoyaltyProgram {
+  id           Int      @id @default(autoincrement())
+  program_name String   @db.VarChar(100)
+  program_code String   @unique @db.VarChar(50)
+  tier_count   Int      @default(1)
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  tiers        LoyaltyTier[]
+  accounts     CustomerLoyaltyAccount[]
+  transactions LoyaltyTransaction[]
+
+  @@map("shop_loyalty_programs")
+}
+
+model LoyaltyTier {
+  id           Int      @id @default(autoincrement())
+  program_id   Int
+  tier_name    String   @db.VarChar(100)
+  tier_level   Int
+  min_points   Int
+  max_points   Int?
+  benefits_json Json?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  program  LoyaltyProgram           @relation(fields: [program_id], references: [id])
+  accounts CustomerLoyaltyAccount[]
+
+  @@map("shop_loyalty_tiers")
+}
+
+model CustomerLoyaltyAccount {
+  id                    Int       @id @default(autoincrement())
+  customer_id           Int       @unique
+  program_id            Int
+  current_tier_id       Int
+  total_points          Int       @default(0)
+  used_points           Int       @default(0)
+  last_transaction_date DateTime?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  customer Customer       @relation(fields: [customer_id], references: [id])
+  program  LoyaltyProgram @relation(fields: [program_id], references: [id])
+  tier     LoyaltyTier    @relation(fields: [current_tier_id], references: [id])
+
+  @@map("shop_customer_loyalty_accounts")
+}
+
+model LoyaltyTransaction {
+  id               BigInt              @id @default(autoincrement())
+  customer_id      Int
+  program_id       Int
+  transaction_type LoyaltyTxType
+  points_change    Int
+  reason           String?             @db.VarChar(255)
+  reference_id     Int?
+  created_at       DateTime            @default(now())
+
+  customer Customer       @relation(fields: [customer_id], references: [id])
+  program  LoyaltyProgram @relation(fields: [program_id], references: [id])
+
+  @@map("shop_loyalty_transactions")
+}
+
+enum LoyaltyTxType {
+  earn
+  redeem
+  expire
+  adjustment
+
+  @@map("loyalty_tx_type")
+}
+
+// ============================================================
+// MODULE 15: MARKETING CAMPAIGNS & COUPONS
+// ============================================================
+
+model Campaign {
+  id                Int            @id @default(autoincrement())
+  campaign_name     String         @db.VarChar(255)
+  campaign_code     String         @unique @db.VarChar(100)
+  campaign_type     CampaignType
+  status            CampaignStatus @default(draft)
+  target_segment_id Int?
+  start_date        DateTime?
+  end_date          DateTime?
+  budget            Decimal?       @db.Decimal(12, 2)
+  expected_roi      Decimal?       @db.Decimal(5, 2)
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+
+  target_segment   CustomerSegment?    @relation(fields: [target_segment_id], references: [id])
+  campaign_emails  CampaignEmail[]
+  coupons          Coupon[]
+  performance      CampaignPerformance[]
+
+  @@map("shop_campaigns")
+}
+
+enum CampaignType {
+  email
+  sms
+  push
+  seasonal
+
+  @@map("campaign_type")
+}
+
+enum CampaignStatus {
+  draft
+  scheduled
+  active
+  paused
+  ended
+
+  @@map("campaign_status")
+}
+
+model CampaignEmail {
+  id                  Int           @id @default(autoincrement())
+  campaign_id         Int
+  email_template_id   Int
+  scheduled_send_time DateTime?
+  sent_count          Int           @default(0)
+  open_count          Int           @default(0)
+  click_count         Int           @default(0)
+  status              EmailStatus   @default(pending)
+  created_at          DateTime      @default(now())
+  updated_at          DateTime      @updatedAt
+
+  campaign  Campaign      @relation(fields: [campaign_id], references: [id])
+  template  EmailTemplate @relation(fields: [email_template_id], references: [id])
+
+  @@map("shop_campaign_emails")
+}
+
+model Coupon {
+  id                      Int          @id @default(autoincrement())
+  coupon_code             String       @unique @db.VarChar(100)
+  campaign_id             Int?
+  discount_type           DiscountType
+  discount_value          Decimal      @db.Decimal(10, 2)
+  max_discount_amount     Decimal?     @db.Decimal(10, 2)
+  min_purchase_amount     Decimal?     @db.Decimal(10, 2)
+  max_usage_count         Int?
+  current_usage_count     Int          @default(0)
+  validity_start          DateTime?
+  validity_end            DateTime?
+  applicable_products_json Json?
+  is_active               Boolean      @default(true)
+  created_at              DateTime     @default(now())
+  updated_at              DateTime     @updatedAt
+
+  campaign    Campaign?          @relation(fields: [campaign_id], references: [id])
+  orders      Order[]
+  redemptions CouponRedemption[]
+
+  @@map("shop_coupons")
+}
+
+enum DiscountType {
+  percentage
+  fixed_amount
+
+  @@map("discount_type")
+}
+
+model CouponRedemption {
+  id              BigInt   @id @default(autoincrement())
+  coupon_id       Int
+  order_id        Int
+  customer_id     Int
+  discount_amount Decimal  @db.Decimal(10, 2)
+  redemption_date DateTime @default(now())
+
+  coupon   Coupon   @relation(fields: [coupon_id], references: [id])
+  order    Order    @relation(fields: [order_id], references: [id])
+  customer Customer @relation(fields: [customer_id], references: [id])
+
+  @@map("shop_coupon_redemptions")
+}
+
+model CampaignPerformance {
+  id          Int      @id @default(autoincrement())
+  campaign_id Int
+  date        DateTime @db.Date
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(12, 2)
+  cost        Decimal  @default(0) @db.Decimal(10, 2)
+  created_at  DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaign_id], references: [id])
+
+  @@unique([campaign_id, date])
+  @@map("shop_campaign_performance")
+}
+
+// ============================================================
+// MODULE 16: PAYMENT & TRANSACTIONS
+// ============================================================
+
+model PaymentMethod {
+  id                   Int      @id @default(autoincrement())
+  method_code          String   @unique @db.VarChar(50)
+  method_name          String   @db.VarChar(100)
+  provider             String?  @db.VarChar(100)
+  provider_account_id  String?  @db.VarChar(100)
+  api_key_encrypted    String?  @db.VarChar(255)
+  is_active            Boolean  @default(true)
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  transactions    Transaction[]
+  reconciliations PaymentReconciliation[]
+
+  @@map("shop_payment_methods")
+}
+
+model Transaction {
+  id                      BigInt            @id @default(autoincrement())
+  order_id                Int
+  customer_id             Int
+  payment_method_id       Int
+  transaction_amount      Decimal           @db.Decimal(12, 2)
+  currency                String            @default("VND") @db.VarChar(3)
+  transaction_type        TransactionType
+  status                  TransactionStatus @default(pending)
+  provider_transaction_id String?           @db.VarChar(100)
+  reference_number        String?           @db.VarChar(100)
+  authorization_code      String?           @db.VarChar(100)
+  response_code           String?           @db.VarChar(50)
+  error_message           String?           @db.Text
+  transaction_date        DateTime          @default(now())
+  created_at              DateTime          @default(now())
+  updated_at              DateTime          @updatedAt
+
+  order          Order         @relation(fields: [order_id], references: [id])
+  payment_method PaymentMethod @relation(fields: [payment_method_id], references: [id])
+  disputes       TransactionDispute[]
+
+  @@index([order_id])
+  @@index([status])
+  @@index([transaction_date])
+  @@map("shop_transactions")
+}
+
+enum TransactionType {
+  payment
+  refund
+  reversal
+
+  @@map("transaction_type")
+}
+
+enum TransactionStatus {
+  pending
+  processing
+  success
+  failed
+  cancelled
+
+  @@map("transaction_status")
+}
+
+model PaymentReconciliation {
+  id                    Int                   @id @default(autoincrement())
+  payment_batch_date    DateTime              @db.Date
+  payment_method_id     Int
+  expected_amount       Decimal               @db.Decimal(12, 2)
+  received_amount       Decimal               @db.Decimal(12, 2)
+  reconciliation_status ReconciliationStatus  @default(pending)
+  reconciled_by         Int?
+  reconciliation_date   DateTime?
+  created_at            DateTime              @default(now())
+  updated_at            DateTime              @updatedAt
+
+  payment_method PaymentMethod @relation(fields: [payment_method_id], references: [id])
+  user           User?         @relation(fields: [reconciled_by], references: [id])
+
+  @@unique([payment_batch_date, payment_method_id])
+  @@map("shop_payment_reconciliation")
+}
+
+enum ReconciliationStatus {
+  pending
+  matched
+  under_review
+
+  @@map("reconciliation_status")
+}
+
+model TransactionDispute {
+  id               Int             @id @default(autoincrement())
+  transaction_id   BigInt
+  dispute_reason   String?         @db.VarChar(255)
+  dispute_amount   Decimal         @db.Decimal(12, 2)
+  status           DisputeStatus   @default(open)
+  filed_date       DateTime        @default(now())
+  resolved_date    DateTime?
+  resolution_notes String?         @db.Text
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  transaction Transaction @relation(fields: [transaction_id], references: [id])
+
+  @@map("shop_transaction_disputes")
+}
+
+enum DisputeStatus {
+  open
+  under_investigation
+  resolved
+  closed
+
+  @@map("dispute_status")
+}
