@@ -3,13 +3,15 @@ import { MainLayout } from '@layouts/MainLayout';
 import { AuthLayout } from '@layouts/AuthLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES } from './routes';
+import { LoginPage } from '@features/auth/pages/LoginPage';
+import { RegisterPage } from '@features/auth/pages/RegisterPage';
 
 export const router = createBrowserRouter([
   {
     element: <AuthLayout />,
     children: [
-      { path: ROUTES.LOGIN, element: <div>Login Page (coming soon)</div> },
-      { path: ROUTES.REGISTER, element: <div>Register Page (coming soon)</div> },
+      { path: ROUTES.LOGIN, element: <LoginPage /> },
+      { path: ROUTES.REGISTER, element: <RegisterPage /> },
     ],
   },
   {
