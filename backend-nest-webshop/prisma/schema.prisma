@@ -16,27 +16,27 @@ datasource db {
 // ============================================================
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique @db.VarChar(255)
-  password     String   @db.VarChar(255)
-  full_name    String   @db.VarChar(100)
-  phone        String?  @db.VarChar(20)
-  role         UserRole @default(customer)
-  is_active    Boolean  @default(true)
-  avatar_url   String?  @db.VarChar(255)
-  last_login   DateTime?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id         Int       @id @default(autoincrement())
+  email      String    @unique @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  full_name  String    @db.VarChar(100)
+  phone      String?   @db.VarChar(20)
+  role       UserRole  @default(customer)
+  is_active  Boolean   @default(true)
+  avatar_url String?   @db.VarChar(255)
+  last_login DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 
   // Relations
-  customer             Customer?
-  audit_logs           AuditLog[]
-  inventory_movements  InventoryMovement[]
-  price_history        ProductPriceHistory[]
-  review_responses     ReviewResponse[]
-  notifications        Notification[]
-  system_settings      SystemSetting[]
-  reconciliations      PaymentReconciliation[]
+  customer            Customer?
+  audit_logs          AuditLog[]
+  inventory_movements InventoryMovement[]
+  price_history       ProductPriceHistory[]
+  review_responses    ReviewResponse[]
+  notifications       Notification[]
+  system_settings     SystemSetting[]
+  reconciliations     PaymentReconciliation[]
 
   @@map("shop_users")
 }
@@ -50,32 +50,32 @@ enum UserRole {
 }
 
 model Customer {
-  id              Int       @id @default(autoincrement())
-  user_id         Int       @unique
-  date_of_birth   DateTime? @db.Date
-  gender          Gender?
-  address         String?   @db.Text
-  city            String?   @db.VarChar(100)
-  district        String?   @db.VarChar(100)
-  ward            String?   @db.VarChar(100)
-  total_orders    Int       @default(0)
-  total_spent     Decimal   @default(0) @db.Decimal(12, 2)
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  id            Int       @id @default(autoincrement())
+  user_id       Int       @unique
+  date_of_birth DateTime? @db.Date
+  gender        Gender?
+  address       String?   @db.Text
+  city          String?   @db.VarChar(100)
+  district      String?   @db.VarChar(100)
+  ward          String?   @db.VarChar(100)
+  total_orders  Int       @default(0)
+  total_spent   Decimal   @default(0) @db.Decimal(12, 2)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 
   // Relations
-  user                    User                     @relation(fields: [user_id], references: [id])
-  orders                  Order[]
-  carts                   Cart[]
-  wishlists               Wishlist[]
-  reviews                 ProductReview[]
-  return_requests         ReturnRequest[]
-  loyalty_account         CustomerLoyaltyAccount?
-  loyalty_transactions    LoyaltyTransaction[]
-  coupon_redemptions      CouponRedemption[]
-  email_logs              EmailLog[]
-  customer_analytics      CustomerAnalytics[]
-  segment_assignments     CustomerSegmentAssignment[]
+  user                 User                        @relation(fields: [user_id], references: [id])
+  orders               Order[]
+  carts                Cart[]
+  wishlists            Wishlist[]
+  reviews              ProductReview[]
+  return_requests      ReturnRequest[]
+  loyalty_account      CustomerLoyaltyAccount?
+  loyalty_transactions LoyaltyTransaction[]
+  coupon_redemptions   CouponRedemption[]
+  email_logs           EmailLog[]
+  customer_analytics   CustomerAnalytics[]
+  segment_assignments  CustomerSegmentAssignment[]
 
   @@map("shop_customers")
 }
@@ -93,62 +93,62 @@ enum Gender {
 // ============================================================
 
 model Category {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
-  slug        String    @unique @db.VarChar(120)
-  description String?   @db.Text
-  image_url   String?   @db.VarChar(255)
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(120)
+  description String?  @db.Text
+  image_url   String?  @db.VarChar(255)
   parent_id   Int?
-  sort_order  Int       @default(0)
-  is_active   Boolean   @default(true)
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
+  sort_order  Int      @default(0)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   // Self-referencing
-  parent      Category?  @relation("CategoryTree", fields: [parent_id], references: [id])
-  children    Category[] @relation("CategoryTree")
-  products    Product[]
+  parent   Category?  @relation("CategoryTree", fields: [parent_id], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
 
   @@map("shop_categories")
 }
 
 model Product {
-  id               Int      @id @default(autoincrement())
-  category_id      Int
-  name             String   @db.VarChar(200)
-  slug             String   @unique @db.VarChar(220)
-  description      String?  @db.Text
-  short_description String? @db.VarChar(500)
-  sku              String   @unique @db.VarChar(100)
-  price            Decimal  @db.Decimal(10, 2)
-  discount_price   Decimal? @db.Decimal(10, 2)
-  cost_price       Decimal? @db.Decimal(10, 2)
-  stock            Int      @default(0)
-  weight           Decimal? @db.Decimal(10, 2)
-  is_active        Boolean  @default(true)
-  is_featured      Boolean  @default(false)
-  supplier_id      Int?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  category_id       Int
+  name              String   @db.VarChar(200)
+  slug              String   @unique @db.VarChar(220)
+  description       String?  @db.Text
+  short_description String?  @db.VarChar(500)
+  sku               String   @unique @db.VarChar(100)
+  price             Decimal  @db.Decimal(10, 2)
+  discount_price    Decimal? @db.Decimal(10, 2)
+  cost_price        Decimal? @db.Decimal(10, 2)
+  stock             Int      @default(0)
+  weight            Decimal? @db.Decimal(10, 2)
+  is_active         Boolean  @default(true)
+  is_featured       Boolean  @default(false)
+  supplier_id       Int?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
   // Relations
-  category             Category               @relation(fields: [category_id], references: [id])
-  supplier             Supplier?              @relation(fields: [supplier_id], references: [id])
-  images               ProductImage[]
-  order_items          OrderItem[]
-  cart_items           CartItem[]
-  wishlist_items       WishlistItem[]
-  reviews              ProductReview[]
-  rating_summary       ProductRatingSummary?
-  inventory_stocks     InventoryStock[]
-  inventory_movements  InventoryMovement[]
-  stock_alerts         StockAlert[]
-  price_history        ProductPriceHistory[]
-  bulk_pricing         BulkPricing[]
-  supplier_products    SupplierProduct[]
-  warehouse_locations  WarehouseLocation[]
-  warehouse_transfers  WarehouseTransfer[]
-  product_analytics    ProductAnalytics[]
+  category            Category              @relation(fields: [category_id], references: [id])
+  supplier            Supplier?             @relation(fields: [supplier_id], references: [id])
+  images              ProductImage[]
+  order_items         OrderItem[]
+  cart_items          CartItem[]
+  wishlist_items      WishlistItem[]
+  reviews             ProductReview[]
+  rating_summary      ProductRatingSummary?
+  inventory_stocks    InventoryStock[]
+  inventory_movements InventoryMovement[]
+  stock_alerts        StockAlert[]
+  price_history       ProductPriceHistory[]
+  bulk_pricing        BulkPricing[]
+  supplier_products   SupplierProduct[]
+  warehouse_locations WarehouseLocation[]
+  warehouse_transfers WarehouseTransfer[]
+  product_analytics   ProductAnalytics[]
 
   @@index([category_id])
   @@index([is_active, is_featured])
@@ -164,7 +164,7 @@ model ProductImage {
   is_primary    Boolean  @default(false)
   created_at    DateTime @default(now())
 
-  product       Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@index([product_id])
   @@map("shop_product_images")
@@ -175,27 +175,27 @@ model ProductImage {
 // ============================================================
 
 model Order {
-  id                Int         @id @default(autoincrement())
-  customer_id       Int
-  order_number      String      @unique @db.VarChar(50)
-  status            OrderStatus @default(pending)
-  subtotal          Decimal     @db.Decimal(12, 2)
-  discount_amount   Decimal     @default(0) @db.Decimal(10, 2)
-  shipping_fee      Decimal     @default(0) @db.Decimal(10, 2)
-  tax_amount        Decimal     @default(0) @db.Decimal(10, 2)
-  total_amount      Decimal     @db.Decimal(12, 2)
-  shipping_address  String      @db.Text
-  billing_address   String?     @db.Text
-  notes             String?     @db.Text
-  coupon_id         Int?
-  paid_at           DateTime?
-  cancelled_at      DateTime?
-  created_at        DateTime    @default(now())
-  updated_at        DateTime    @updatedAt
+  id               Int         @id @default(autoincrement())
+  customer_id      Int
+  order_number     String      @unique @db.VarChar(50)
+  status           OrderStatus @default(pending)
+  subtotal         Decimal     @db.Decimal(12, 2)
+  discount_amount  Decimal     @default(0) @db.Decimal(10, 2)
+  shipping_fee     Decimal     @default(0) @db.Decimal(10, 2)
+  tax_amount       Decimal     @default(0) @db.Decimal(10, 2)
+  total_amount     Decimal     @db.Decimal(12, 2)
+  shipping_address String      @db.Text
+  billing_address  String?     @db.Text
+  notes            String?     @db.Text
+  coupon_id        Int?
+  paid_at          DateTime?
+  cancelled_at     DateTime?
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
 
   // Relations
-  customer           Customer            @relation(fields: [customer_id], references: [id])
-  coupon             Coupon?             @relation(fields: [coupon_id], references: [id])
+  customer           Customer           @relation(fields: [customer_id], references: [id])
+  coupon             Coupon?            @relation(fields: [coupon_id], references: [id])
   items              OrderItem[]
   shipments          Shipment[]
   return_requests    ReturnRequest[]
@@ -223,17 +223,17 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id          Int     @id @default(autoincrement())
-  order_id    Int
-  product_id  Int
-  quantity    Int
-  unit_price  Decimal @db.Decimal(10, 2)
-  subtotal    Decimal @db.Decimal(12, 2)
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  unit_price Decimal  @db.Decimal(10, 2)
+  subtotal   Decimal  @db.Decimal(12, 2)
+  created_at DateTime @default(now())
 
   // Relations
-  order        Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  product      Product @relation(fields: [product_id], references: [id])
+  order        Order        @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [product_id], references: [id])
   return_items ReturnItem[]
 
   @@index([order_id])
@@ -256,8 +256,8 @@ model ShippingProvider {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  methods       ShippingMethod[]
-  shipments     Shipment[]
+  methods   ShippingMethod[]
+  shipments Shipment[]
 
   @@index([is_active])
   @@map("shop_shipping_providers")
@@ -297,9 +297,9 @@ model Shipment {
   created_at             DateTime       @default(now())
   updated_at             DateTime       @updatedAt
 
-  order           Order            @relation(fields: [order_id], references: [id])
-  shipping_method ShippingMethod   @relation(fields: [shipping_method_id], references: [id])
-  provider        ShippingProvider @relation(fields: [provider_id], references: [id])
+  order           Order              @relation(fields: [order_id], references: [id])
+  shipping_method ShippingMethod     @relation(fields: [shipping_method_id], references: [id])
+  provider        ShippingProvider   @relation(fields: [provider_id], references: [id])
   tracking_events ShipmentTracking[]
 
   @@index([status])
@@ -326,7 +326,7 @@ model ShipmentTracking {
   timestamp   DateTime
   created_at  DateTime @default(now())
 
-  shipment    Shipment @relation(fields: [shipment_id], references: [id], onDelete: Cascade)
+  shipment Shipment @relation(fields: [shipment_id], references: [id], onDelete: Cascade)
 
   @@index([shipment_id])
   @@index([timestamp])
@@ -350,19 +350,19 @@ model ReturnReason {
 }
 
 model ReturnRequest {
-  id                     Int           @id @default(autoincrement())
-  order_id               Int
-  customer_id            Int
-  return_reason_id       Int
-  notes                  String?       @db.Text
-  status                 ReturnStatus  @default(pending)
-  requested_date         DateTime      @default(now())
-  approved_date          DateTime?
-  estimated_return_date  DateTime?
-  received_date          DateTime?
-  refunded_date          DateTime?
-  created_at             DateTime      @default(now())
-  updated_at             DateTime      @updatedAt
+  id                    Int          @id @default(autoincrement())
+  order_id              Int
+  customer_id           Int
+  return_reason_id      Int
+  notes                 String?      @db.Text
+  status                ReturnStatus @default(pending)
+  requested_date        DateTime     @default(now())
+  approved_date         DateTime?
+  estimated_return_date DateTime?
+  received_date         DateTime?
+  refunded_date         DateTime?
+  created_at            DateTime     @default(now())
+  updated_at            DateTime     @updatedAt
 
   order         Order        @relation(fields: [order_id], references: [id])
   customer      Customer     @relation(fields: [customer_id], references: [id])
@@ -385,14 +385,14 @@ enum ReturnStatus {
 }
 
 model ReturnItem {
-  id                Int            @id @default(autoincrement())
+  id                Int           @id @default(autoincrement())
   return_request_id Int
   order_item_id     Int
   product_id        Int
   quantity          Int
-  condition         ItemCondition  @default(used)
-  refund_amount     Decimal        @db.Decimal(10, 2)
-  created_at        DateTime       @default(now())
+  condition         ItemCondition @default(used)
+  refund_amount     Decimal       @db.Decimal(10, 2)
+  created_at        DateTime      @default(now())
 
   return_request ReturnRequest @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
   order_item     OrderItem     @relation(fields: [order_item_id], references: [id])
@@ -449,19 +449,19 @@ enum RefundStatus {
 // ============================================================
 
 model Store {
-  id           Int      @id @default(autoincrement())
-  name         String   @db.VarChar(100)
-  code         String   @unique @db.VarChar(50)
-  address      String?  @db.Text
-  city         String?  @db.VarChar(100)
-  phone        String?  @db.VarChar(20)
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  code       String   @unique @db.VarChar(50)
+  address    String?  @db.Text
+  city       String?  @db.VarChar(100)
+  phone      String?  @db.VarChar(20)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  inventory_stocks     InventoryStock[]
-  inventory_movements  InventoryMovement[]
-  stock_alerts         StockAlert[]
+  inventory_stocks    InventoryStock[]
+  inventory_movements InventoryMovement[]
+  stock_alerts        StockAlert[]
 
   @@map("shop_stores")
 }
@@ -487,20 +487,20 @@ model InventoryStock {
 }
 
 model InventoryMovement {
-  id             BigInt        @id @default(autoincrement())
+  id             BigInt       @id @default(autoincrement())
   product_id     Int
   store_id       Int
   movement_type  MovementType
   quantity       Int
   reference_id   Int?
-  reference_type String?       @db.VarChar(50)
-  notes          String?       @db.Text
+  reference_type String?      @db.VarChar(50)
+  notes          String?      @db.Text
   created_by     Int
-  created_at     DateTime      @default(now())
+  created_at     DateTime     @default(now())
 
-  product  Product @relation(fields: [product_id], references: [id])
-  store    Store   @relation(fields: [store_id], references: [id])
-  user     User    @relation(fields: [created_by], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+  store   Store   @relation(fields: [store_id], references: [id])
+  user    User    @relation(fields: [created_by], references: [id])
 
   @@index([movement_type])
   @@index([product_id, store_id, created_at])
@@ -519,16 +519,16 @@ enum MovementType {
 }
 
 model StockAlert {
-  id            Int        @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   product_id    Int
   store_id      Int
   alert_type    AlertType
   current_stock Int
   threshold     Int
-  is_resolved   Boolean    @default(false)
+  is_resolved   Boolean   @default(false)
   resolved_at   DateTime?
-  created_at    DateTime   @default(now())
-  updated_at    DateTime   @updatedAt
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 
   product Product @relation(fields: [product_id], references: [id])
   store   Store   @relation(fields: [store_id], references: [id])
@@ -593,15 +593,15 @@ model CartItem {
 }
 
 model Wishlist {
-  id               Int      @id @default(autoincrement())
-  customer_id      Int
-  wishlist_name    String   @default("My Wishlist") @db.VarChar(100)
-  is_public        Boolean  @default(false)
-  visibility_link  String?  @db.VarChar(100)
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  customer_id     Int
+  wishlist_name   String   @default("My Wishlist") @db.VarChar(100)
+  is_public       Boolean  @default(false)
+  visibility_link String?  @db.VarChar(100)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  customer Customer      @relation(fields: [customer_id], references: [id])
+  customer Customer       @relation(fields: [customer_id], references: [id])
   items    WishlistItem[]
 
   @@map("shop_wishlists")
@@ -626,15 +626,15 @@ model WishlistItem {
 // ============================================================
 
 model Notification {
-  id           BigInt           @id @default(autoincrement())
-  user_id      Int
-  type         NotificationType
-  title        String           @db.VarChar(255)
-  message      String           @db.Text
-  related_id   Int?
-  is_read      Boolean          @default(false)
-  read_at      DateTime?
-  created_at   DateTime         @default(now())
+  id         BigInt           @id @default(autoincrement())
+  user_id    Int
+  type       NotificationType
+  title      String           @db.VarChar(255)
+  message    String           @db.Text
+  related_id Int?
+  is_read    Boolean          @default(false)
+  read_at    DateTime?
+  created_at DateTime         @default(now())
 
   user User @relation(fields: [user_id], references: [id])
 
@@ -662,22 +662,22 @@ model EmailTemplate {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  email_logs     EmailLog[]
+  email_logs      EmailLog[]
   campaign_emails CampaignEmail[]
 
   @@map("shop_email_templates")
 }
 
 model EmailLog {
-  id               BigInt      @id @default(autoincrement())
-  customer_id      Int?
-  template_id      Int
-  recipient_email  String      @db.VarChar(255)
-  subject          String      @db.VarChar(255)
-  status           EmailStatus @default(pending)
-  sent_at          DateTime?
-  error_message    String?     @db.Text
-  created_at       DateTime    @default(now())
+  id              BigInt      @id @default(autoincrement())
+  customer_id     Int?
+  template_id     Int
+  recipient_email String      @db.VarChar(255)
+  subject         String      @db.VarChar(255)
+  status          EmailStatus @default(pending)
+  sent_at         DateTime?
+  error_message   String?     @db.Text
+  created_at      DateTime    @default(now())
 
   customer Customer?     @relation(fields: [customer_id], references: [id])
   template EmailTemplate @relation(fields: [template_id], references: [id])
@@ -702,16 +702,16 @@ enum EmailStatus {
 // ============================================================
 
 model ProductPriceHistory {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   product_id     Int
-  old_price      Decimal  @db.Decimal(10, 2)
-  new_price      Decimal  @db.Decimal(10, 2)
-  discount_price Decimal? @db.Decimal(10, 2)
-  reason         String?  @db.VarChar(255)
+  old_price      Decimal   @db.Decimal(10, 2)
+  new_price      Decimal   @db.Decimal(10, 2)
+  discount_price Decimal?  @db.Decimal(10, 2)
+  reason         String?   @db.VarChar(255)
   effective_date DateTime
   end_date       DateTime?
   changed_by     Int
-  created_at     DateTime @default(now())
+  created_at     DateTime  @default(now())
 
   product Product @relation(fields: [product_id], references: [id])
   user    User    @relation(fields: [changed_by], references: [id])
@@ -757,15 +757,15 @@ model OrderAnalytics {
 }
 
 model ProductAnalytics {
-  id               BigInt   @id @default(autoincrement())
-  product_id       Int
-  date             DateTime @db.Date
-  views            Int      @default(0)
-  add_to_cart_count Int     @default(0)
-  purchase_count   Int      @default(0)
-  revenue          Decimal  @default(0) @db.Decimal(12, 2)
-  conversion_rate  Decimal  @default(0) @db.Decimal(5, 2)
-  created_at       DateTime @default(now())
+  id                BigInt   @id @default(autoincrement())
+  product_id        Int
+  date              DateTime @db.Date
+  views             Int      @default(0)
+  add_to_cart_count Int      @default(0)
+  purchase_count    Int      @default(0)
+  revenue           Decimal  @default(0) @db.Decimal(12, 2)
+  conversion_rate   Decimal  @default(0) @db.Decimal(5, 2)
+  created_at        DateTime @default(now())
 
   product Product @relation(fields: [product_id], references: [id])
 
@@ -774,15 +774,15 @@ model ProductAnalytics {
 }
 
 model CustomerAnalytics {
-  id                      BigInt   @id @default(autoincrement())
-  customer_id             Int
-  date                    DateTime @db.Date
-  purchase_count          Int      @default(0)
-  total_spent             Decimal  @default(0) @db.Decimal(12, 2)
-  average_order_value     Decimal  @default(0) @db.Decimal(10, 2)
-  last_purchase_date      DateTime? @db.Date
+  id                       BigInt    @id @default(autoincrement())
+  customer_id              Int
+  date                     DateTime  @db.Date
+  purchase_count           Int       @default(0)
+  total_spent              Decimal   @default(0) @db.Decimal(12, 2)
+  average_order_value      Decimal   @default(0) @db.Decimal(10, 2)
+  last_purchase_date       DateTime? @db.Date
   days_since_last_purchase Int?
-  created_at              DateTime @default(now())
+  created_at               DateTime  @default(now())
 
   customer Customer @relation(fields: [customer_id], references: [id])
 
@@ -819,13 +819,13 @@ model AuditLog {
 // ============================================================
 
 model SystemSetting {
-  id            Int          @id @default(autoincrement())
-  setting_key   String       @unique @db.VarChar(100)
-  setting_value String       @db.LongText
+  id            Int         @id @default(autoincrement())
+  setting_key   String      @unique @db.VarChar(100)
+  setting_value String      @db.LongText
   data_type     SettingType
-  description   String?      @db.Text
+  description   String?     @db.Text
   updated_by    Int?
-  updated_at    DateTime     @updatedAt
+  updated_at    DateTime    @updatedAt
 
   user User? @relation(fields: [updated_by], references: [id])
 
@@ -858,27 +858,27 @@ model TaxSetting {
 // ============================================================
 
 model Supplier {
-  id              Int      @id @default(autoincrement())
-  name            String   @db.VarChar(100)
-  contact_person  String?  @db.VarChar(100)
-  email           String?  @db.VarChar(100)
-  phone           String?  @db.VarChar(20)
-  address         String?  @db.Text
-  city            String?  @db.VarChar(100)
-  country         String?  @db.VarChar(100)
-  tax_id          String?  @db.VarChar(50)
-  payment_terms   String?  @db.VarChar(50)
-  lead_time_days  Int?
-  min_order_qty   Int?
-  rating          Decimal? @db.Decimal(3, 2)
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(100)
+  contact_person String?  @db.VarChar(100)
+  email          String?  @db.VarChar(100)
+  phone          String?  @db.VarChar(20)
+  address        String?  @db.Text
+  city           String?  @db.VarChar(100)
+  country        String?  @db.VarChar(100)
+  tax_id         String?  @db.VarChar(50)
+  payment_terms  String?  @db.VarChar(50)
+  lead_time_days Int?
+  min_order_qty  Int?
+  rating         Decimal? @db.Decimal(3, 2)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
-  products     Product[]
+  products          Product[]
   supplier_products SupplierProduct[]
-  performance  SupplierPerformance[]
-  payments     SupplierPayment[]
+  performance       SupplierPerformance[]
+  payments          SupplierPayment[]
 
   @@map("shop_suppliers")
 }
@@ -903,14 +903,14 @@ model SupplierProduct {
 }
 
 model SupplierPerformance {
-  id                      Int      @id @default(autoincrement())
-  supplier_id             Int
-  date                    DateTime @db.Date
-  total_orders            Int      @default(0)
-  on_time_delivery_rate   Decimal  @default(0) @db.Decimal(5, 2)
-  quality_score           Decimal  @default(0) @db.Decimal(5, 2)
-  price_competitiveness   Decimal  @default(0) @db.Decimal(5, 2)
-  created_at              DateTime @default(now())
+  id                    Int      @id @default(autoincrement())
+  supplier_id           Int
+  date                  DateTime @db.Date
+  total_orders          Int      @default(0)
+  on_time_delivery_rate Decimal  @default(0) @db.Decimal(5, 2)
+  quality_score         Decimal  @default(0) @db.Decimal(5, 2)
+  price_competitiveness Decimal  @default(0) @db.Decimal(5, 2)
+  created_at            DateTime @default(now())
 
   supplier Supplier @relation(fields: [supplier_id], references: [id])
 
@@ -966,42 +966,42 @@ model Warehouse {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
-  zones                WarehouseZone[]
-  transfers_from       WarehouseTransfer[] @relation("TransferFrom")
-  transfers_to         WarehouseTransfer[] @relation("TransferTo")
+  zones          WarehouseZone[]
+  transfers_from WarehouseTransfer[] @relation("TransferFrom")
+  transfers_to   WarehouseTransfer[] @relation("TransferTo")
 
   @@map("shop_warehouses")
 }
 
 model WarehouseZone {
-  id           Int      @id @default(autoincrement())
-  warehouse_id Int
-  zone_name    String   @db.VarChar(50)
-  zone_code    String   @unique @db.VarChar(50)
-  rack_count   Int      @default(0)
-  shelf_count  Int      @default(0)
-  capacity     Int?
-  current_usage Int     @default(0)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  warehouse_id  Int
+  zone_name     String   @db.VarChar(50)
+  zone_code     String   @unique @db.VarChar(50)
+  rack_count    Int      @default(0)
+  shelf_count   Int      @default(0)
+  capacity      Int?
+  current_usage Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  warehouse Warehouse      @relation(fields: [warehouse_id], references: [id])
+  warehouse Warehouse       @relation(fields: [warehouse_id], references: [id])
   racks     WarehouseRack[]
 
   @@map("shop_warehouse_zones")
 }
 
 model WarehouseRack {
-  id           Int          @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   zone_id      Int
-  rack_number  String       @db.VarChar(50)
-  rack_code    String       @unique @db.VarChar(50)
-  shelf_count  Int          @default(0)
+  rack_number  String     @db.VarChar(50)
+  rack_code    String     @unique @db.VarChar(50)
+  shelf_count  Int        @default(0)
   capacity     Int?
-  current_load Int          @default(0)
-  status       RackStatus   @default(active)
-  created_at   DateTime     @default(now())
-  updated_at   DateTime     @updatedAt
+  current_load Int        @default(0)
+  status       RackStatus @default(active)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
 
   zone      WarehouseZone       @relation(fields: [zone_id], references: [id])
   locations WarehouseLocation[]
@@ -1033,16 +1033,16 @@ model WarehouseLocation {
 }
 
 model WarehouseTransfer {
-  id                Int              @id @default(autoincrement())
+  id                Int            @id @default(autoincrement())
   from_warehouse_id Int
   to_warehouse_id   Int
   product_id        Int
   quantity          Int
   transfer_date     DateTime
   arrival_date      DateTime?
-  status            TransferStatus   @default(pending)
-  created_at        DateTime         @default(now())
-  updated_at        DateTime         @updatedAt
+  status            TransferStatus @default(pending)
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
 
   from_warehouse Warehouse @relation("TransferFrom", fields: [from_warehouse_id], references: [id])
   to_warehouse   Warehouse @relation("TransferTo", fields: [to_warehouse_id], references: [id])
@@ -1078,8 +1078,8 @@ model ProductReview {
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 
-  product   Product           @relation(fields: [product_id], references: [id])
-  customer  Customer          @relation(fields: [customer_id], references: [id])
+  product   Product          @relation(fields: [product_id], references: [id])
+  customer  Customer         @relation(fields: [customer_id], references: [id])
   images    ReviewImage[]
   responses ReviewResponse[]
 
@@ -1182,15 +1182,15 @@ model LoyaltyProgram {
 }
 
 model LoyaltyTier {
-  id           Int      @id @default(autoincrement())
-  program_id   Int
-  tier_name    String   @db.VarChar(100)
-  tier_level   Int
-  min_points   Int
-  max_points   Int?
+  id            Int      @id @default(autoincrement())
+  program_id    Int
+  tier_name     String   @db.VarChar(100)
+  tier_level    Int
+  min_points    Int
+  max_points    Int?
   benefits_json Json?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
   program  LoyaltyProgram           @relation(fields: [program_id], references: [id])
   accounts CustomerLoyaltyAccount[]
@@ -1217,14 +1217,14 @@ model CustomerLoyaltyAccount {
 }
 
 model LoyaltyTransaction {
-  id               BigInt              @id @default(autoincrement())
+  id               BigInt        @id @default(autoincrement())
   customer_id      Int
   program_id       Int
   transaction_type LoyaltyTxType
   points_change    Int
-  reason           String?             @db.VarChar(255)
+  reason           String?       @db.VarChar(255)
   reference_id     Int?
-  created_at       DateTime            @default(now())
+  created_at       DateTime      @default(now())
 
   customer Customer       @relation(fields: [customer_id], references: [id])
   program  LoyaltyProgram @relation(fields: [program_id], references: [id])
@@ -1259,10 +1259,10 @@ model Campaign {
   created_at        DateTime       @default(now())
   updated_at        DateTime       @updatedAt
 
-  target_segment   CustomerSegment?    @relation(fields: [target_segment_id], references: [id])
-  campaign_emails  CampaignEmail[]
-  coupons          Coupon[]
-  performance      CampaignPerformance[]
+  target_segment  CustomerSegment?      @relation(fields: [target_segment_id], references: [id])
+  campaign_emails CampaignEmail[]
+  coupons         Coupon[]
+  performance     CampaignPerformance[]
 
   @@map("shop_campaigns")
 }
@@ -1287,39 +1287,39 @@ enum CampaignStatus {
 }
 
 model CampaignEmail {
-  id                  Int           @id @default(autoincrement())
+  id                  Int         @id @default(autoincrement())
   campaign_id         Int
   email_template_id   Int
   scheduled_send_time DateTime?
-  sent_count          Int           @default(0)
-  open_count          Int           @default(0)
-  click_count         Int           @default(0)
-  status              EmailStatus   @default(pending)
-  created_at          DateTime      @default(now())
-  updated_at          DateTime      @updatedAt
+  sent_count          Int         @default(0)
+  open_count          Int         @default(0)
+  click_count         Int         @default(0)
+  status              EmailStatus @default(pending)
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
 
-  campaign  Campaign      @relation(fields: [campaign_id], references: [id])
-  template  EmailTemplate @relation(fields: [email_template_id], references: [id])
+  campaign Campaign      @relation(fields: [campaign_id], references: [id])
+  template EmailTemplate @relation(fields: [email_template_id], references: [id])
 
   @@map("shop_campaign_emails")
 }
 
 model Coupon {
-  id                      Int          @id @default(autoincrement())
-  coupon_code             String       @unique @db.VarChar(100)
-  campaign_id             Int?
-  discount_type           DiscountType
-  discount_value          Decimal      @db.Decimal(10, 2)
-  max_discount_amount     Decimal?     @db.Decimal(10, 2)
-  min_purchase_amount     Decimal?     @db.Decimal(10, 2)
-  max_usage_count         Int?
-  current_usage_count     Int          @default(0)
-  validity_start          DateTime?
-  validity_end            DateTime?
+  id                       Int          @id @default(autoincrement())
+  coupon_code              String       @unique @db.VarChar(100)
+  campaign_id              Int?
+  discount_type            DiscountType
+  discount_value           Decimal      @db.Decimal(10, 2)
+  max_discount_amount      Decimal?     @db.Decimal(10, 2)
+  min_purchase_amount      Decimal?     @db.Decimal(10, 2)
+  max_usage_count          Int?
+  current_usage_count      Int          @default(0)
+  validity_start           DateTime?
+  validity_end             DateTime?
   applicable_products_json Json?
-  is_active               Boolean      @default(true)
-  created_at              DateTime     @default(now())
-  updated_at              DateTime     @updatedAt
+  is_active                Boolean      @default(true)
+  created_at               DateTime     @default(now())
+  updated_at               DateTime     @updatedAt
 
   campaign    Campaign?          @relation(fields: [campaign_id], references: [id])
   orders      Order[]
@@ -1372,15 +1372,15 @@ model CampaignPerformance {
 // ============================================================
 
 model PaymentMethod {
-  id                   Int      @id @default(autoincrement())
-  method_code          String   @unique @db.VarChar(50)
-  method_name          String   @db.VarChar(100)
-  provider             String?  @db.VarChar(100)
-  provider_account_id  String?  @db.VarChar(100)
-  api_key_encrypted    String?  @db.VarChar(255)
-  is_active            Boolean  @default(true)
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  method_code         String   @unique @db.VarChar(50)
+  method_name         String   @db.VarChar(100)
+  provider            String?  @db.VarChar(100)
+  provider_account_id String?  @db.VarChar(100)
+  api_key_encrypted   String?  @db.VarChar(255)
+  is_active           Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
 
   transactions    Transaction[]
   reconciliations PaymentReconciliation[]
@@ -1406,8 +1406,8 @@ model Transaction {
   created_at              DateTime          @default(now())
   updated_at              DateTime          @updatedAt
 
-  order          Order         @relation(fields: [order_id], references: [id])
-  payment_method PaymentMethod @relation(fields: [payment_method_id], references: [id])
+  order          Order                @relation(fields: [order_id], references: [id])
+  payment_method PaymentMethod        @relation(fields: [payment_method_id], references: [id])
   disputes       TransactionDispute[]
 
   @@index([order_id])
@@ -1435,16 +1435,16 @@ enum TransactionStatus {
 }
 
 model PaymentReconciliation {
-  id                    Int                   @id @default(autoincrement())
-  payment_batch_date    DateTime              @db.Date
+  id                    Int                  @id @default(autoincrement())
+  payment_batch_date    DateTime             @db.Date
   payment_method_id     Int
-  expected_amount       Decimal               @db.Decimal(12, 2)
-  received_amount       Decimal               @db.Decimal(12, 2)
-  reconciliation_status ReconciliationStatus  @default(pending)
+  expected_amount       Decimal              @db.Decimal(12, 2)
+  received_amount       Decimal              @db.Decimal(12, 2)
+  reconciliation_status ReconciliationStatus @default(pending)
   reconciled_by         Int?
   reconciliation_date   DateTime?
-  created_at            DateTime              @default(now())
-  updated_at            DateTime              @updatedAt
+  created_at            DateTime             @default(now())
+  updated_at            DateTime             @updatedAt
 
   payment_method PaymentMethod @relation(fields: [payment_method_id], references: [id])
   user           User?         @relation(fields: [reconciled_by], references: [id])
@@ -1462,16 +1462,16 @@ enum ReconciliationStatus {
 }
 
 model TransactionDispute {
-  id               Int             @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   transaction_id   BigInt
-  dispute_reason   String?         @db.VarChar(255)
-  dispute_amount   Decimal         @db.Decimal(12, 2)
-  status           DisputeStatus   @default(open)
-  filed_date       DateTime        @default(now())
+  dispute_reason   String?       @db.VarChar(255)
+  dispute_amount   Decimal       @db.Decimal(12, 2)
+  status           DisputeStatus @default(open)
+  filed_date       DateTime      @default(now())
   resolved_date    DateTime?
-  resolution_notes String?         @db.Text
-  created_at       DateTime        @default(now())
-  updated_at       DateTime        @updatedAt
+  resolution_notes String?       @db.Text
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
 
   transaction Transaction @relation(fields: [transaction_id], references: [id])
 
