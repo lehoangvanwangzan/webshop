@@ -1,33 +1,36 @@
 services:
-  mongodb:
-    image: mongo:8.2.6
-    container_name: mcp-blog-mongo
+  mysql:
+    image: mysql:8.0
+    container_name: webshop-mysql
     ports:
-      - "27017:27017"
+      - "3306:3306"
     volumes:
-      - mongo_data:/data/db
+      - mysql_data:/var/lib/mysql
     environment:
-      - MONGO_INITDB_DATABASE=mcp_blog
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=shop_database
+      - MYSQL_USER=shop_user
+      - MYSQL_PASSWORD=123456
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   app:
     build: .
-    container_name: mcp-blog-app
+    container_name: webshop-app
     ports:
       - "3000:3000"
     environment:
       - PORT=3000
-      - MONGO_URI=mongodb://mongodb:27017/mcp_blog
+      - DATABASE_URL=mysql://shop_user:123456@mysql:3306/shop_database
     depends_on:
-      mongodb:
+      mysql:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  mongo_data:
+  mysql_data:
 
-# docker compose -p hoidanit-mcp-blog up -d
+    # docker compose -p webshop up -d

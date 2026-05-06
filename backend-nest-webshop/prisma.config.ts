@@ -1,8 +1,11 @@
-import { defineConfig } from 'prisma/config';
-import 'dotenv/config';
+import path from "path";
+import dotenv from "dotenv";
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+import { defineConfig, env } from "prisma/config";
 
 export default defineConfig({
-  earlyAccess: true,
-  schema: 'prisma/schema.prisma',
-  datasourceUrl: process.env.DATABASE_URL ?? 'mysql://root:@localhost:3306/webshop',
+  schema: path.resolve(__dirname, "prisma/schema.prisma"),
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
 });
