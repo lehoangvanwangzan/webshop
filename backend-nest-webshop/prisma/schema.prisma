@@ -112,9 +112,27 @@ model Category {
   @@map("shop_categories")
 }
 
+model Brand {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  slug        String    @unique @db.VarChar(120)
+  logo_url    String?   @db.VarChar(255)
+  website_url String?   @db.VarChar(255)
+  description String?   @db.Text
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  products    Product[]
+
+  @@map("shop_brand")
+}
+
 model Product {
   id                Int      @id @default(autoincrement())
   category_id       Int
+  brand_id          Int?
   name              String   @db.VarChar(200)
   slug              String   @unique @db.VarChar(220)
   description       String?  @db.Text
@@ -133,6 +151,7 @@ model Product {
 
   // Relations
   category            Category              @relation(fields: [category_id], references: [id])
+  brand               Brand?                @relation(fields: [brand_id], references: [id])
   supplier            Supplier?             @relation(fields: [supplier_id], references: [id])
   images              ProductImage[]
   order_items         OrderItem[]
@@ -151,6 +170,7 @@ model Product {
   product_analytics   ProductAnalytics[]
 
   @@index([category_id])
+  @@index([brand_id])
   @@index([is_active, is_featured])
   @@map("shop_products")
 }

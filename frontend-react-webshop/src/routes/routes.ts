@@ -5,6 +5,7 @@ export const ROUTES = {
   PRODUCTS: '/products',
   PRODUCT_DETAIL: '/products/:id',
   CATEGORIES: '/categories',
+  BRANDS: '/brands',
   CART: '/cart',
   ORDERS: '/orders',
   ORDER_DETAIL: '/orders/:id',

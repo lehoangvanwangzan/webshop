@@ -81,7 +81,7 @@ export function AuthLayout() {
       {/* Cột phải — form đăng nhập/đăng ký */}
       <div style={{
         flex: 1,
-        background: '#fafafa',
+        background: '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
