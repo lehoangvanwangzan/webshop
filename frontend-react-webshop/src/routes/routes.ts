@@ -10,4 +10,10 @@ export const ROUTES = {
   ORDERS: '/orders',
   ORDER_DETAIL: '/orders/:id',
   PROFILE: '/profile',
+  ADMIN: '/admin',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_PRODUCTS: '/admin/products',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_ORDERS: '/admin/orders',
+  ADMIN_SETTINGS: '/admin/settings',
 } as const;

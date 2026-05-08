@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   UseGuards,
   Request,
@@ -27,12 +28,18 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  me(@Request() req: { user: Express.User }) {
+    // JwtStrategy.validate đã load user đầy đủ từ DB (có avatar_url)
+    return req.user;
+  }
+
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  logout(@Request() req: Express.Request) {
+  logout() {
     // JWT không lưu trạng thái — client tự xóa token ở phía mình.
-    // Trả về thông báo để client xóa thông tin người dùng khỏi store.
     return { message: 'Đăng xuất thành công' };
   }
 }

@@ -7,6 +7,9 @@ import { LoggerModule } from './core/logger/logger.module';
 import { AuthModule } from '@features/auth/auth.module';
 import { BrandsModule } from '@features/brands/brands.module';
 import { CategoriesModule } from '@features/categories/categories.module';
+import { ProductsModule } from '@features/products/products.module';
+import { UsersModule } from '@features/users/users.module';
+import { DashboardModule } from '@features/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { CategoriesModule } from '@features/categories/categories.module';
     AuthModule,
     BrandsModule,
     CategoriesModule,
+    ProductsModule,
+    UsersModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

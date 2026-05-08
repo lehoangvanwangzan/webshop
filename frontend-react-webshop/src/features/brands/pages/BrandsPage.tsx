@@ -3,8 +3,9 @@ import { RightOutlined, HomeOutlined } from '@ant-design/icons';
 import { Breadcrumb, Spin, Empty } from 'antd';
 import { ROUTES } from '@routes/routes';
 import { useBrands } from '../hooks/useBrands';
+import { COLORS } from '@shared/constants/colors';
 
-const RED = '#dc2626';
+const RED = COLORS.primary;
 
 export function BrandsPage() {
   const { data: brands, isLoading, isError } = useBrands();

@@ -19,7 +19,7 @@ export function LoginPage() {
 
   const from = (location.state as { from?: string })?.from ?? ROUTES.HOME;
 
-  const onFinish = async (values: LoginDto) => {
+  const onFinish = async ({ remember: _, ...values }: LoginDto) => {
     setLoading(true);
     try {
       const data = await authApi.login(values);

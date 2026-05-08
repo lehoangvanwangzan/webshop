@@ -1,18 +1,26 @@
 import { Link } from 'react-router';
-import { ShoppingCartOutlined, RightOutlined } from '@ant-design/icons';
+import { ShoppingCartOutlined, RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { ROUTES } from '@routes/routes';
+import { COLORS } from '@shared/constants/colors';
+import '../styles/HomePage.css';
 
-const RED = '#dc2626';
-const GREEN = '#16a34a';
+// Import product images
+import rb750gr3Img from '@/assets/products/rb750gr3.png';
+import uapAcProImg from '@/assets/products/uap-ac-pro.png';
+import ccr2004Img from '@/assets/products/ccr2004.png';
+import r650Img from '@/assets/products/r650.png';
+
+const RED = COLORS.primary;
+const GREEN = COLORS.success;
 const AMBER = '#f59e0b';
 
 /* Mock data */
 const MOCK_PRODUCTS = [
-  { id: 1, name: 'Bộ phát Wifi UniFi AC Pro (UAP-AC-Pro) 1750Mbps', price: 4968000, badge: 'BÁN CHẠY', img: null },
-  { id: 2, name: 'Thiết bị cân bằng tải Router MikroTik CCR2004-16G-2S+', price: 13200000, badge: 'BÁN CHẠY', img: null },
-  { id: 3, name: 'Bộ phát Wifi Ruckus R650 WiFi 6 (901-R650-WW00)', price: 0, badge: null, img: null },
-  { id: 4, name: 'MikroTik RB4011iGS+RM, Thiết bị cân bằng tải Router', price: 6200000, badge: 'BÁN CHẠY', img: null },
-  { id: 5, name: 'Thiết bị lưu trữ NAS Synology DS925+', price: 0, badge: null, img: null },
+  { id: 1, name: 'Thiết bị cân bằng tải router MikroTik RB750Gr3 (hEX) chịu tải 100-150 user', price: 1920000, badge: 'BÁN CHẠY', img: rb750gr3Img },
+  { id: 2, name: 'Bộ phát wifi UniFi AC Pro (UAP-AC-Pro) 1750Mbps, 100-150 user', price: 4968000, badge: 'BÁN CHẠY', img: uapAcProImg },
+  { id: 3, name: 'Thiết bị cân bằng tải Router MikroTik CCR2004-16G-2S+ siêu mạnh', price: 13200000, badge: 'BÁN CHẠY', img: ccr2004Img },
+  { id: 4, name: 'Bộ phát wifi Ruckus R650 WiFi 6 (901-R650-WW00) chuyên dụng', price: 0, badge: null, img: r650Img },
+  { id: 5, name: 'MikroTik RB4011iGS+RM, Thiết bị cân bằng tải Router chịu tải cao', price: 6200000, badge: 'BÁN CHẠY', img: rb750gr3Img },
 ];
 
 const FEATURES = [
@@ -144,74 +152,40 @@ export function HomePage() {
       </div>
 
       {/* Sản phẩm nổi bật */}
-      <div style={{ background: '#fff', borderRadius: 10, overflow: 'hidden', marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        {/* Header */}
-        <div style={{
-          background: RED, padding: '12px 20px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <h2 style={{ margin: 0, color: '#fff', fontSize: 16, fontWeight: 700 }}>
-            🔥 SẢN PHẨM NỔI BẬT
-          </h2>
-          <Link to={ROUTES.PRODUCTS} style={{ color: '#fff', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
-            Xem tất cả <RightOutlined />
-          </Link>
-        </div>
+      <section className="featured-section">
+        <header className="featured-header">
+          <div className="featured-title-wrapper">
+            <h2 className="featured-title">SẢN PHẨM NỔI BẬT</h2>
+          </div>
+          <div className="featured-nav">
+            <button className="nav-btn"><LeftOutlined /></button>
+            <button className="nav-btn"><RightOutlined /></button>
+          </div>
+        </header>
 
-        {/* Product grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 0 }}>
-          {MOCK_PRODUCTS.map((p, i) => (
-            <div
-              key={p.id}
-              style={{
-                padding: 16, cursor: 'pointer', position: 'relative',
-                borderRight: i < 4 ? '1px solid #f3f4f6' : 'none',
-                transition: 'box-shadow 0.2s',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 2px #dc262622 inset'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = ''; }}
-            >
-              {p.badge && (
-                <div style={{
-                  position: 'absolute', top: 10, left: 10,
-                  background: RED, color: '#fff',
-                  fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4,
-                }}>
-                  {p.badge}
-                </div>
-              )}
-
-              {/* Product image placeholder */}
-              <div style={{
-                width: '100%', aspectRatio: '1',
-                background: '#f9fafb', borderRadius: 8, marginBottom: 12,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 48,
-              }}>
-                🖥️
+        <div className="product-grid">
+          {MOCK_PRODUCTS.map((p) => (
+            <div key={p.id} className="product-card">
+              {p.badge && <span className="badge-best-seller">{p.badge}</span>}
+              
+              <div className="product-image-container">
+                <img src={p.img || '/placeholder.png'} alt={p.name} className="product-image" />
               </div>
 
-              <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.4, marginBottom: 10, minHeight: 52 }}>
-                {p.name}
-              </div>
+              <h3 className="product-name">{p.name}</h3>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: p.price ? RED : '#6b7280' }}>
+              <div className="product-footer">
+                <div className={`product-price ${!p.price ? 'contact' : ''}`}>
                   {p.price ? formatPrice(p.price) : 'Liên hệ'}
                 </div>
-                <button style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: RED, border: 'none', color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', fontSize: 14,
-                }}>
+                <button className="add-to-cart-btn">
                   <ShoppingCartOutlined />
                 </button>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Banner đôi */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 8 }}>

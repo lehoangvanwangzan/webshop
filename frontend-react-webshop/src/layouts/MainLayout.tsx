@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router';
 import { Badge, Input, Dropdown, ConfigProvider } from 'antd';
-import type { ReactNode } from 'react';
 import {
   ShoppingCartOutlined,
   UserOutlined,
@@ -10,38 +9,14 @@ import {
   MailOutlined,
   MenuOutlined,
   SearchOutlined,
-  WifiOutlined,
-  ApiOutlined,
-  ApartmentOutlined,
-  SafetyOutlined,
-  DatabaseOutlined,
-  HddOutlined,
-  CloudServerOutlined,
-  ClusterOutlined,
-  ThunderboltOutlined,
-  AppstoreOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@features/auth/stores/auth.store';
-import { useCategories } from '@features/categories/hooks/useCategories';
+import { CategoryFlyout } from '@features/categories/components/CategoryFlyout';
+import { COLORS } from '@shared/constants/colors';
 import { ROUTES } from '@routes/routes';
 
-const RED = '#dc2626';
-const RED_DARK = '#b91c1c';
-const GREEN = '#16a34a';
-
-
-const SLUG_ICON: Record<string, ReactNode> = {
-  'bo-phat-wifi': <WifiOutlined />,
-  'thiet-bi-can-bang-tai': <ApiOutlined />,
-  'bo-chuyen-mach-switch': <ApartmentOutlined />,
-  'thiet-bi-tuong-lua-firewall': <SafetyOutlined />,
-  'thiet-bi-luu-tru': <DatabaseOutlined />,
-  'o-cung-cho-server-nas': <HddOutlined />,
-  'may-chu-server': <CloudServerOutlined />,
-  'thiet-bi-mang-cong-nghiep': <ClusterOutlined />,
-  'thiet-bi-dien-nhe': <ThunderboltOutlined />,
-  'phu-kien-khac': <AppstoreOutlined />,
-};
+const RED = COLORS.primary;
+const RED_DARK = COLORS.primaryDark;
 
 const NAV_LINKS = [
   { label: 'TRANG CHỦ', path: ROUTES.HOME },
@@ -54,15 +29,9 @@ const NAV_LINKS = [
 
 export function MainLayout() {
   const [search, setSearch] = useState('');
-  const [activeCatId, setActiveCatId] = useState<number | null>(null);
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const { data: categories = [] } = useCategories();
-
-  const activeCat = activeCatId
-    ? categories.find((c) => c.id === activeCatId)
-    : categories[0];
 
   const handleSearch = () => {
     if (search.trim()) navigate(`${ROUTES.PRODUCTS}?q=${encodeURIComponent(search.trim())}`);
@@ -70,6 +39,9 @@ export function MainLayout() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#fff' }}>
+      {/* Sticky header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
+
       {/* Top bar */}
       <div style={{ background: RED, color: '#fff', fontSize: 12 }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '6px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -84,6 +56,11 @@ export function MainLayout() {
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <UserOutlined />
                 <span style={{ opacity: 0.9 }}>{user.full_name}</span>
+                {user.role === 'admin' && (
+                  <Link to={ROUTES.ADMIN_PRODUCTS} style={{ color: '#fef08a', fontSize: 11, fontWeight: 600, border: '1px solid rgba(254,240,138,0.5)', borderRadius: 4, padding: '1px 8px' }}>
+                    Admin
+                  </Link>
+                )}
                 <button
                   onClick={clearAuth}
                   style={{ background: 'none', border: '1px solid rgba(255,255,255,0.5)', color: '#fff', borderRadius: 4, padding: '1px 8px', cursor: 'pointer', fontSize: 11 }}
@@ -173,122 +150,7 @@ export function MainLayout() {
           <Dropdown
             trigger={['hover']}
             placement="bottomLeft"
-            popupRender={() => (
-              <div style={{
-                display: 'flex',
-                background: '#fff',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
-                borderRadius: '0 0 8px 8px',
-                borderTop: `3px solid ${RED}`,
-                overflow: 'hidden',
-                minHeight: 420,
-              }}>
-                {/* Cột trái — danh mục cha */}
-                <div style={{ width: 240, borderRight: '1px solid #f3f4f6', flexShrink: 0 }}>
-                  {categories.map((cat) => {
-                    const isActive = activeCat?.id === cat.id;
-                    return (
-                      <div
-                        key={cat.id}
-                        onMouseEnter={() => setActiveCatId(cat.id)}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '10px 16px', fontSize: 13, cursor: 'pointer',
-                          borderBottom: '1px solid #f3f4f6',
-                          background: isActive ? '#fef2f2' : '#fff',
-                          color: isActive ? RED : '#374151',
-                          transition: 'all 0.15s',
-                        }}
-                      >
-                        <span style={{ fontSize: 15, width: 18, textAlign: 'center', color: isActive ? RED : '#9ca3af' }}>
-                          {SLUG_ICON[cat.slug] ?? <AppstoreOutlined />}
-                        </span>
-                        <span style={{ flex: 1, fontWeight: isActive ? 600 : 400 }}>{cat.name}</span>
-                        <span style={{ fontSize: 10, color: '#d1d5db' }}>›</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Cột phải — danh mục con dạng card có logo */}
-                <div style={{ flex: 1, padding: '14px 16px', minWidth: 340, overflowY: 'auto' }}>
-                  {activeCat && (
-                    <>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: RED, textTransform: 'uppercase', marginBottom: 12, paddingBottom: 8, borderBottom: `2px solid ${RED}` }}>
-                        {activeCat.name}
-                      </div>
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: `repeat(${(activeCat.children ?? []).length <= 4 ? 2 : (activeCat.children ?? []).length <= 9 ? 3 : 4}, 1fr)`,
-                        gap: 8,
-                      }}>
-                        {(activeCat.children ?? []).map((child) => (
-                          <Link
-                            key={child.id}
-                            to={`${ROUTES.PRODUCTS}?category=${child.slug}`}
-                            style={{
-                              display: 'flex', flexDirection: 'column', alignItems: 'center',
-                              gap: 6, padding: '10px 6px', border: '1px solid #f3f4f6',
-                              borderRadius: 6, textDecoration: 'none', background: '#fff',
-                              transition: 'all 0.15s', cursor: 'pointer',
-                            }}
-                            onMouseEnter={(e) => {
-                              const el = e.currentTarget as HTMLElement;
-                              el.style.borderColor = RED;
-                              el.style.boxShadow = '0 4px 12px rgba(220,38,38,0.12)';
-                              el.style.transform = 'translateY(-2px)';
-                            }}
-                            onMouseLeave={(e) => {
-                              const el = e.currentTarget as HTMLElement;
-                              el.style.borderColor = '#f3f4f6';
-                              el.style.boxShadow = 'none';
-                              el.style.transform = 'translateY(0)';
-                            }}
-                          >
-                            <div style={{
-                              width: '100%', height: 52, display: 'flex',
-                              alignItems: 'center', justifyContent: 'center',
-                              background: '#f9fafb', borderRadius: 4, overflow: 'hidden',
-                            }}>
-                              {child.image_url ? (
-                                <img
-                                  src={child.image_url}
-                                  alt={child.name}
-                                  style={{ maxWidth: '80%', maxHeight: 36, objectFit: 'contain' }}
-                                  onError={(e) => {
-                                    const img = e.currentTarget;
-                                    img.style.display = 'none';
-                                    const fb = document.createElement('div');
-                                    fb.style.cssText = `width:32px;height:32px;border-radius:50%;background:${RED};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px`;
-                                    fb.innerText = child.name.charAt(0).toUpperCase();
-                                    img.parentElement?.appendChild(fb);
-                                  }}
-                                />
-                              ) : (
-                                <div style={{
-                                  width: 32, height: 32, borderRadius: '50%',
-                                  background: RED, color: '#fff',
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  fontWeight: 700, fontSize: 14,
-                                }}>
-                                  {child.name.charAt(0).toUpperCase()}
-                                </div>
-                              )}
-                            </div>
-                            <span style={{
-                              fontSize: 11, color: '#374151', fontWeight: 500,
-                              textAlign: 'center', lineHeight: 1.3,
-                            }}>
-                              {child.name}
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
+            popupRender={() => <CategoryFlyout />}
           >
             <button style={{
               background: RED, border: 'none', color: '#fff',
@@ -326,6 +188,7 @@ export function MainLayout() {
           </div>
         </div>
       </div>
+      </div>{/* end sticky header */}
 
       {/* Page content */}
       <main style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 32px' }}>

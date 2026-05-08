@@ -28,7 +28,8 @@ export class User {
   @Column({ type: 'enum', enum: ['admin', 'staff', 'customer'], default: 'customer' })
   role: UserRole;
 
-  @Column({ nullable: true })
+  /** Đường dẫn file avatar, ví dụ: /picture/user/1234567890-abc.jpg */
+  @Column({ length: 255, nullable: true })
   avatar_url: string;
 
   @Column({ default: true })
