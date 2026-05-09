@@ -9,6 +9,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================
@@ -98,18 +99,31 @@ model Category {
   slug        String   @unique @db.VarChar(120)
   description String?  @db.Text
   image_url   String?  @db.VarChar(255)
-  parent_id   Int?
   sort_order  Int      @default(0)
   is_active   Boolean  @default(true)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  // Self-referencing
-  parent   Category?  @relation("CategoryTree", fields: [parent_id], references: [id])
-  children Category[] @relation("CategoryTree")
+  children ChildCategory[]
   products Product[]
 
   @@map("shop_categories")
+}
+
+model ChildCategory {
+  id          Int      @id @default(autoincrement())
+  category_id Int
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(120)
+  image_url   String?  @db.VarChar(255)
+  sort_order  Int      @default(0)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  category Category @relation(fields: [category_id], references: [id])
+
+  @@map("shop_child_categories")
 }
 
 model Brand {

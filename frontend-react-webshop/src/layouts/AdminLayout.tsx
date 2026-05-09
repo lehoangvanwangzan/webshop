@@ -51,7 +51,7 @@ export function AdminLayout() {
   const avatarSrc = resolveAvatarUrl(user?.avatar_url);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex text-slate-800">
+    <div className="min-h-screen bg-[#F8FAFC] flex text-slate-800" style={{ colorScheme: 'light' }}>
 
       {/* ── Backdrop mobile ── */}
       {sidebarOpen && (

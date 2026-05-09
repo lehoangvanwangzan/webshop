@@ -4,23 +4,24 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
-import { ChildCategory } from './child-category.entity';
+import { Category } from './category.entity';
 
-@Entity('shop_categories')
-export class Category {
+@Entity('shop_child_categories')
+export class ChildCategory {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  category_id: number;
 
   @Column({ length: 100 })
   name: string;
 
   @Column({ unique: true, length: 120 })
   slug: string;
-
-  @Column({ type: 'text', nullable: true })
-  description: string;
 
   @Column({ length: 255, nullable: true })
   image_url: string;
@@ -37,6 +38,7 @@ export class Category {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => ChildCategory, (c) => c.category)
-  children: ChildCategory[];
+  @ManyToOne(() => Category, (cat) => cat.children)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 }

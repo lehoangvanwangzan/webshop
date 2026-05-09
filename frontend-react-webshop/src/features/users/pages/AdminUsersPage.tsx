@@ -81,31 +81,52 @@ export function AdminUsersPage() {
     setPage(1);
   };
 
+  const PAGE_SIZE = 20;
+
   const columns: ColumnsType<AdminUser> = [
     {
-      title: '#',
-      dataIndex: 'id',
+      title: 'STT',
       key: 'id',
-      width: 70,
+      width: 72,
+      fixed: 'left',
+      align: 'center',
       sorter: true,
       sortDirections: ['ascend', 'descend'],
+      showSorterTooltip: false,
+      render: (_: unknown, __: AdminUser, index: number) => (
+        <span className="text-slate-400 text-xs">{(page - 1) * PAGE_SIZE + index + 1}</span>
+      ),
+    },
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 68,
+      align: 'center',
+      sorter: true,
+      sortDirections: ['ascend', 'descend'],
+      render: (id: number) => (
+        <span className="text-xs font-mono text-slate-400">#{id}</span>
+      ),
     },
     {
       title: 'Người dùng',
       key: 'full_name',
+      width: 400,
       sorter: true,
       sortDirections: ['ascend', 'descend'],
+      showSorterTooltip: false,
       render: (_: unknown, record: AdminUser) => (
-        <Space>
+        <Space size={8}>
           <Avatar
-            size={36}
+            size={28}
             src={resolveAvatarUrl(record.avatar_url)}
             icon={!record.avatar_url ? <UserOutlined /> : undefined}
             style={{ background: COLORS.primary, flexShrink: 0 }}
           />
           <div>
-            <Text strong style={{ fontSize: 13 }}>{record.full_name}</Text>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>{record.email}</div>
+            <Text strong style={{ fontSize: 12 }}>{record.full_name}</Text>
+            <div style={{ fontSize: 11, color: '#9ca3af' }}>{record.email}</div>
           </div>
         </Space>
       ),

@@ -1,2 +1,5 @@
 ## Dừng process đang dùng cổng 3000
 netstat -ano | Select-String ":3000" | Where-Object { $_ -match "LISTENING" } | ForEach-Object { $parts = ($_ -split '\s+').Trim() | Where-Object { $_ }; Stop-Process -Id $parts[-1] -Force }
+
+## Seed DB
+npx prisma db seed

@@ -39,7 +39,6 @@ export class ProductsService {
     if (search) {
       qb.andWhere('(p.name LIKE :s OR p.sku LIKE :s)', { s: `%${search}%` });
     }
-    console.log('findAll query:', query);
     if (is_active !== undefined && is_active !== null) {
       qb.andWhere('p.is_active = :is_active', { is_active });
     }
