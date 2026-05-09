@@ -12,7 +12,12 @@
       "Bash(git push *)",
       "Bash(gh pr *)",
       "Bash(gh auth *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__hover",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__take_snapshot"
     ]
   }
 }

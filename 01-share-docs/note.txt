@@ -3,3 +3,19 @@ netstat -ano | Select-String ":3000" | Where-Object { $_ -match "LISTENING" } | 
 
 ## Seed DB
 npx prisma db seed
+
+## Start Backend
+cd backend-nest-webshop
+npm run start:dev
+
+## create DB
+npx prisma migrate dev  
+
+## create table
+npx prisma db push
+
+## generate model
+ 
+
+## Prisma Studio
+npx prisma studio
