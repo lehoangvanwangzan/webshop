@@ -9,7 +9,6 @@ import { LoginPage } from '@features/auth/pages/LoginPage';
 import { RegisterPage } from '@features/auth/pages/RegisterPage';
 import { HomePage } from '@features/home/pages/HomePage';
 import { BrandsPage } from '@features/brands/pages/BrandsPage';
-import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
 import { AdminDashboardPage } from '@features/dashboard/pages/AdminDashboardPage';
 import { AdminProductsPage } from '@features/products/pages/AdminProductsPage';
 import { AdminUsersPage } from '@features/users/pages/AdminUsersPage';
@@ -29,7 +28,6 @@ export const router = createBrowserRouter([
     children: [
       { path: ROUTES.HOME, element: <HomePage /> },
       { path: ROUTES.BRANDS, element: <BrandsPage /> },
-      { path: ROUTES.CATEGORIES, element: <CategoriesPage /> },
       { path: ROUTES.PRODUCTS, element: <div>Products Page (coming soon)</div> },
       { path: ROUTES.PRODUCT_DETAIL, element: <div>Product Detail (coming soon)</div> },
     ],

@@ -23,4 +23,10 @@ export class QueryProductsDto {
   @IsNumber()
   @IsIn([0, 1, 2])
   is_active?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @IsIn([0, 1])
+  is_featured?: number;
 }

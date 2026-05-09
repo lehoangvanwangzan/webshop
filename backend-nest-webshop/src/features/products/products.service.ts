@@ -28,7 +28,7 @@ export class ProductsService {
   ) {}
 
   async findAll(query: QueryProductsDto): Promise<PaginatedResponse<Product>> {
-    const { page = 1, limit = 20, search, is_active } = query;
+    const { page = 1, limit = 20, search, is_active, is_featured } = query;
 
     const qb = this.productRepo
       .createQueryBuilder('p')
@@ -41,6 +41,9 @@ export class ProductsService {
     }
     if (is_active !== undefined && is_active !== null) {
       qb.andWhere('p.is_active = :is_active', { is_active });
+    }
+    if (is_featured !== undefined && is_featured !== null) {
+      qb.andWhere('p.is_featured = :is_featured', { is_featured: Boolean(is_featured) });
     }
 
     qb.orderBy('p.created_at', 'DESC')

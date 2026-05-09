@@ -49,4 +49,5 @@ export interface ProductQueryParams {
   limit?: number;
   search?: string;
   is_active?: number;
+  is_featured?: number;
 }

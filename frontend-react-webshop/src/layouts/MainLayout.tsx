@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router';
 import { TopBar } from './components/TopBar';
 import { MainHeader } from './components/MainHeader';
-import { NavBar } from './components/NavBar';
 import { MainFooter } from './components/MainFooter';
 
 export function MainLayout() {
@@ -11,7 +10,6 @@ export function MainLayout() {
       <div style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
         <TopBar />
         <MainHeader />
-        <NavBar />
       </div>
 
       {/* Page content */}
