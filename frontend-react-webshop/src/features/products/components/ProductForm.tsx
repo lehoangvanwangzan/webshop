@@ -399,7 +399,7 @@ export function ProductForm({ initialValues, onSuccess, onCancel }: Props) {
                       min={0}
                       addonAfter="đ"
                       formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={(v) => v?.replace(/,/g, '') as unknown as number}
+                      parser={(v) => Number(v?.replace(/,/g, '') ?? 0) as unknown as 0}
                       placeholder="1,920,000"
                       onChange={(v) => setPriceValue(v as number | null)}
                     />
@@ -422,7 +422,7 @@ export function ProductForm({ initialValues, onSuccess, onCancel }: Props) {
                       min={0}
                       addonAfter="đ"
                       formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={(v) => v?.replace(/,/g, '') as unknown as number}
+                      parser={(v) => Number(v?.replace(/,/g, '') ?? 0) as unknown as 0}
                       placeholder="Không bắt buộc"
                       onChange={(v) => setDiscountValue(v as number | null)}
                     />

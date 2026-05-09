@@ -146,11 +146,7 @@ export function CrudSelect({
 
   // Mỗi option dùng React element làm label (hiện trong dropdown)
   // title là plain text dùng cho ô selected value (qua optionLabelProp="title")
-  const filtered = searchValue
-    ? options.filter((o) => o.name.toLowerCase().includes(searchValue.toLowerCase()))
-    : options;
-
-  const selectOptions = filtered.map((o) => ({
+  const selectOptions = options.map((o) => ({
     value: o.id,
     title: o.name,    // hiện trong ô đã chọn
     name: o.name,     // dùng cho filterOption
@@ -270,6 +266,10 @@ export function CrudSelect({
       onSearch={setSearchValue}
       optionLabelProp="title"
       options={selectOptions}
+      filterOption={(input, option) => {
+        if (!input) return true;
+        return (option?.name ?? '').toLowerCase().includes(input.toLowerCase());
+      }}
       dropdownRender={dropdownRender}
       loading={loading}
       disabled={disabled}
