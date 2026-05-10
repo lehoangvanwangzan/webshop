@@ -19,7 +19,17 @@
       "mcp__chrome-devtools__click",
       "mcp__chrome-devtools__take_snapshot",
       "Bash(xargs grep -l \"CopyOutlined\\\\|OutlinedIcon\")",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(npm run *)",
+      "Bash(Get-Content \"C:\\\\Users\\\\VAN\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-VAN-OneDrive-Documents-32-Claude-WebShop\\\\abf34236-40da-4618-8ba6-c4bb3c7f4c04\\\\tasks\\\\bcpx6hz49.output\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -Last 50)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "Bash(pkill -f \"npm run dev\")",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(\"Dev server stopped\")"
     ]
   }
 }

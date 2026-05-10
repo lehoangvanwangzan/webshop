@@ -1,0 +1,152 @@
+/**
+ * Component FeatureHighlights Stylesheet
+ *
+ * Features:
+ * - Responsive grid layout (1/2/4 columns based on breakpoint)
+ * - Smooth hover animations (scale + shadow)
+ * - BEM naming convention for CSS classes
+ * - Red variant for all features
+ */
+
+/* Main container */
+.feature-highlights {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Desktop: 4 cột (>= 1024px) */
+@media (min-width: 1024px) {
+  .feature-highlights {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Tablet: 2 cột (768px - 1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .feature-highlights {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* Mobile: 1 cột (< 768px) */
+@media (max-width: 767px) {
+  .feature-highlights {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/**
+ * Feature card - Individual feature container
+ *
+ * Layout: Flexbox với icon bên trái, content bên phải
+ * Animation: Hover effect scale + shadow
+ */
+.feature-card {
+  padding: 20px 24px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Icon container - Displays Ant Design icon */
+.feature-card__icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 24px;
+}
+
+/* Content wrapper - Title and description container */
+.feature-card__content {
+  flex: 1;
+}
+
+/* Title - Feature name (e.g., "CAM KẾT CHẤT LƯỢNG") */
+.feature-card__title {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+/* Description text */
+.feature-card__description {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/**
+ * Color variants - Different colors for each feature
+ */
+
+/* RED VARIANT - CAM KẾT CHÍNH HÃNG */
+.feature-card--red {
+  background: #fef2f2;
+  border: 1px solid #d71a2122;
+}
+
+.feature-card--red .feature-card__title {
+  color: #d71a21;
+}
+
+.feature-card--red .feature-card__icon-box {
+  background: #d71a2118;
+}
+
+/* AMBER VARIANT - GIAO HÀNG TOÀN QUỐC */
+.feature-card--amber {
+  background: #fffbeb;
+  border: 1px solid #f59e0b22;
+}
+
+.feature-card--amber .feature-card__title {
+  color: #f59e0b;
+}
+
+.feature-card--amber .feature-card__icon-box {
+  background: #f59e0b18;
+}
+
+/* RED-DARK VARIANT - HỖ TRỢ KỸ THUẬT 24/7 */
+.feature-card--red-dark {
+  background: #fef2f2;
+  border: 1px solid #ef444422;
+}
+
+.feature-card--red-dark .feature-card__title {
+  color: #ef4444;
+}
+
+.feature-card--red-dark .feature-card__icon-box {
+  background: #ef444418;
+}
+
+/* GREEN VARIANT - BẢO HÀNH UY TÍN */
+.feature-card--green {
+  background: #f0fdf4;
+  border: 1px solid #16a34a22;
+}
+
+.feature-card--green .feature-card__title {
+  color: #16a34a;
+}
+
+.feature-card--green .feature-card__icon-box {
+  background: #16a34a18;
+}
+

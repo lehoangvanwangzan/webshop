@@ -7,11 +7,14 @@ import '../styles/ProductGrid.css';
  * Component hiển thị danh mục sản phẩm (Product Grid)
  *
  * Features:
- * - Responsive grid: 1 cột (mobile) / 2 cột (tablet) / 4 cột (desktop)
+ * - Responsive grid: 1 cột (mobile) / 2 cột (tablet) / 5 cột (desktop)
+ * - Section header với tiêu đề và category filters
  * - Hiển thị sản phẩm đang kích hoạt (is_active: 1)
- * - Hỗ trợ loading state và error handling
- * - Pagination support (limit 12 sản phẩm)
- * - Hover animation: scale(1.05) + box-shadow
+ * - "BÁN CHẠY" badge cho các sản phẩm nổi bật
+ * - Shopping cart button trên mỗi card
+ * - Loading state và error handling
+ * - Pagination support (limit 20 sản phẩm)
+ * - Hover animation: translateY(-4px) + shadow
  *
  * @component
  * @example
@@ -20,12 +23,30 @@ import '../styles/ProductGrid.css';
 export function ProductGrid() {
   const { data, isLoading, isError } = useProducts({
     is_active: 1,
-    limit: 12,
+    limit: 20,
     page: 1,
   });
 
   return (
-    <section>
+    <section className="product-grid-section">
+      <div className="product-grid-header">
+        <h2 className="product-grid-title">THIẾT BỊ CẦN BẰNG TÀI</h2>
+        <div className="product-grid-filters">
+          <a href="#" className="product-grid-filter">
+            Router Draytek
+          </a>
+          <a href="#" className="product-grid-filter">
+            Router Ubiquiti
+          </a>
+          <a href="#" className="product-grid-filter">
+            Router MikroTik
+          </a>
+          <a href="#" className="product-grid-filter">
+            Router Teltonika
+          </a>
+        </div>
+      </div>
+
       {isLoading && (
         <div style={{ textAlign: 'center', padding: '48px 0' }}>
           <Spin size="large" />

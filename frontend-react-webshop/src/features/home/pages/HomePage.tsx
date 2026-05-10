@@ -15,7 +15,7 @@ export function HomePage() {
 
       <FeatureHighlights />
       <FeaturedProducts />
-      <ProductGrid />
+      <ProductGrid categorySlug="thiet-bi-can-bang-tai" />
     </div>
   );
 }
