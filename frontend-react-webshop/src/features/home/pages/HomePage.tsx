@@ -1,5 +1,6 @@
 import { FeatureHighlights } from '../components/FeatureHighlights';
 import { FeaturedProducts } from '../components/FeaturedProducts';
+import { ProductGrid } from '../components/ProductGrid';
 import { PromoBanners } from '../components/PromoBanners';
 import { HomeCategories } from '../components/HomeCategories';
 
@@ -14,6 +15,7 @@ export function HomePage() {
 
       <FeatureHighlights />
       <FeaturedProducts />
+      <ProductGrid />
     </div>
   );
 }
