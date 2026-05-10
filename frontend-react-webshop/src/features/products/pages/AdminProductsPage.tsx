@@ -4,7 +4,7 @@ import {
   Segmented, Pagination, Tooltip,
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, DeleteOutlined,
+  PlusOutlined, EditOutlined, DeleteOutlined, CopyOutlined,
   AppstoreOutlined, BarsOutlined, PictureOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -57,6 +57,16 @@ export function AdminProductsPage() {
     } catch {
       message.error('Xoá thất bại. Vui lòng thử lại.');
     }
+  };
+
+  const handleCopy = (product: Product) => {
+    const copiedProduct: Product = {
+      ...product,
+      id: undefined as any,  // Clear ID so form treats as create mode
+      slug: '',              // Clear slug for auto-generation
+    };
+    setEditingProduct(copiedProduct);
+    setIsFormOpen(true);
   };
 
   const handleFormSuccess = () => {
@@ -202,7 +212,7 @@ export function AdminProductsPage() {
     },
     {
       title: 'Hành động',
-      width: 100,
+      width: 120,
       fixed: 'right',
       render: (_: unknown, record: Product) => (
         <Space>
@@ -210,6 +220,11 @@ export function AdminProductsPage() {
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+          />
+          <Button
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => handleCopy(record)}
           />
           <Popconfirm
             title="Xoá sản phẩm?"
@@ -342,6 +357,14 @@ export function AdminProductsPage() {
                           size="small"
                           icon={<EditOutlined />}
                           onClick={() => handleEdit(product)}
+                          className="bg-white border-none shadow"
+                        />
+                      </Tooltip>
+                      <Tooltip title="Sao chép sản phẩm">
+                        <Button
+                          size="small"
+                          icon={<CopyOutlined />}
+                          onClick={() => handleCopy(product)}
                           className="bg-white border-none shadow"
                         />
                       </Tooltip>
