@@ -19,3 +19,8 @@ npx prisma db push
 
 ## Prisma Studio
 npx prisma studio
+
+## Dùng git fetch kết hợp git merger
+
+git fetch origin  (Tải toàn bộ các thay đổi mới nhất từ server về nhưng chưa tác động vào code hiện tại của bạn)
+git merge origin/master  (Áp dụng các thay đổi vừa tải về vào code hiện tại của bạn)
