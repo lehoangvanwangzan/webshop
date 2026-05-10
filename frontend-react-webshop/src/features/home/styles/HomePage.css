@@ -47,10 +47,21 @@
   justify-content: center;
 }
 
+/**
+ * Container chứa carousel Swiper
+ * - padding: căn lề nội dung
+ * - Swiper sẽ tự động xử lý layout grid/flex
+ */
 .product-grid {
   padding: 20px;
 }
 
+/**
+ * Styling cho mỗi slide trong carousel
+ * - height: auto - cho phép slide co giãn theo nội dung
+ * - display: flex - bố trí nội dung bên trong slide
+ * - flex-direction: column - sắp xếp nội dung theo chiều dọc
+ */
 .swiper-slide {
   height: auto;
   display: flex;
