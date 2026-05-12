@@ -1,11 +1,13 @@
 import { useRef } from 'react';
 import { ShoppingCartOutlined, RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
+import { Link } from 'react-router';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import { resolveProductImageUrl } from '@/features/products/api/products.api';
+import { ROUTES } from '@/routes/routes';
 import '../styles/HomePage.css';
 
 /**
@@ -115,18 +117,22 @@ export function FeaturedProducts() {
               ? resolveProductImageUrl(p.images[0].image_url)
               : '/placeholder.png';
 
+            const productDetailUrl = ROUTES.PRODUCT_DETAIL.replace(':id', p.id.toString());
+
             return (
               // Mỗi SwiperSlide là một slide trong carousel
               <SwiperSlide key={p.id}>
                 {/* Thẻ sản phẩm */}
-                <div className="product-card">
+                <div className="product-card group">
                   {/* Container chứa ảnh sản phẩm */}
-                  <div className="product-image-container">
-                    <img src={imgUrl} alt={p.name} className="product-image" />
-                  </div>
+                  <Link to={productDetailUrl} className="product-image-container overflow-hidden block">
+                    <img src={imgUrl} alt={p.name} className="product-image transition-transform duration-500 group-hover:scale-110" />
+                  </Link>
 
                   {/* Tên sản phẩm (tối đa 3 dòng) */}
-                  <h3 className="product-name">{p.name}</h3>
+                  <Link to={productDetailUrl}>
+                    <h3 className="product-name hover:text-indigo-600 transition-colors">{p.name}</h3>
+                  </Link>
 
                   {/* Phần footer - giá và nút thêm vào giỏ */}
                   <div className="product-footer">

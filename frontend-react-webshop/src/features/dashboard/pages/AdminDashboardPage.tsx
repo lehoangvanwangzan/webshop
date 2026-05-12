@@ -98,6 +98,22 @@ export function AdminDashboardPage() {
 
       return { ...s, value, change, up };
     }
+    if (s.id === 4) {
+      // Card Sản Phẩm Đang Bán — lấy từ API
+      const count = stats?.total_active_products;
+      const pct   = stats?.product_change_pct;
+      const up    = stats?.product_change_up ?? true;
+
+      const value = statsLoading
+        ? '…'
+        : count !== undefined ? count.toLocaleString('vi-VN') : '—';
+
+      const change = statsLoading
+        ? '…'
+        : pct !== undefined ? `${pct}%` : '0%';
+
+      return { ...s, value, change, up };
+    }
     return s;
   });
 

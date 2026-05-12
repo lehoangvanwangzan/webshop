@@ -1,0 +1,330 @@
+import React, { useState } from 'react';
+import { 
+  Star, 
+  ShoppingCart, 
+  Heart, 
+  Truck, 
+  ShieldCheck, 
+  ArrowLeftRight, 
+  Plus, 
+  Minus, 
+  Check,
+  ChevronRight,
+  Facebook,
+  Twitter,
+  Instagram,
+  CreditCard,
+  HeadphonesIcon,
+  PackageCheck,
+  FileDown,
+  ChevronDown
+} from 'lucide-react';
+
+const ProductDetailPage = () => {
+  // Mock Data
+  const product = {
+    id: 1,
+    name: "Tai Nghe Không Dây Noise Cancelling Pro Ultra",
+    brand: "AudioMax",
+    sku: "AM-NC-2024",
+    price: 4500000,
+    originalPrice: 5900000,
+    discount: 24,
+    rating: 4.8,
+    reviewsCount: 128,
+    soldCount: 1500,
+    description: "MikroTik RB760iGS (hEX S) là thiết bị định tuyến có kích thước tương đối nhỏ, phù hợp sử dụng tại các văn phòng doanh nghiệp, gia đình với quy mô 100 user. Thiết bị cung cấp 5 cổng Gigabit Ethernet cùng module quang học SFP cấu hình tối đa lên tới 4 mạng WAN. MikroTik RB760iGS có giá thành hợp lý so với các sản phẩm cùng phân khúc, đi kèm với rất nhiều tính năng và hiệu suất hoạt động mạnh mẽ.",
+    colors: [
+      { name: "Đen Huyền Bí", hex: "#1a1a1a", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop" },
+      { name: "Trắng Tinh Khôi", hex: "#f5f5f5", img: "https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=1000&auto=format&fit=crop" }
+    ],
+    sizes: ["Tiêu chuẩn", "Pro XL"],
+    specifications: [
+      { label: "Mã sản phẩm", value: "AM-NC-2024" },
+      { label: "Kiến trúc", value: "ARM 64bit" },
+      { label: "CPU", value: "Quad-Core 1.4GHz" },
+      { label: "Số nhân CPU", value: "4" },
+      { label: "Tần số CPU", value: "1400 MHz" },
+      { label: "Ram", value: "1 GB" },
+      { label: "Kích thước", value: "113 x 89 x 28 mm" },
+      { label: "Hệ điều hành", value: "AudioOS v7" }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?q=80&w=1000&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=1000&auto=format&fit=crop"
+    ]
+  };
+
+  const relatedProducts = [
+    { id: 2, name: "Loa Bluetooth PartyBox", price: 3200000, img: "https://images.unsplash.com/photo-1608156639585-34054e815958?q=80&w=500&auto=format&fit=crop", rating: 4.5 },
+    { id: 3, name: "Đồng Hồ Thông Minh Sport S3", price: 1850000, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500&auto=format&fit=crop", rating: 4.7 },
+    { id: 4, name: "Bàn Phím Cơ Silent RGB", price: 2100000, img: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?q=80&w=500&auto=format&fit=crop", rating: 4.9 },
+    { id: 5, name: "Chuột Gaming Không Dây", price: 1200000, img: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?q=80&w=500&auto=format&fit=crop", rating: 4.6 }
+  ];
+
+  // State
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
+  const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState(product.images[0]);
+  const [isWishlist, setIsWishlist] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const formatPrice = (num) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+  };
+
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-5 right-5 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl flex items-center gap-2">
+          <Check size={20} />
+          <span>{toast}</span>
+        </div>
+      )}
+
+      <nav className="container mx-auto px-4 py-4 text-sm text-gray-500">
+        <ul className="flex items-center gap-2">
+          <li>Trang chủ</li> <ChevronRight size={14} />
+          <li>Âm thanh</li> <ChevronRight size={14} />
+          <li className="text-gray-900 font-medium truncate">{product.name}</li>
+        </ul>
+      </nav>
+
+      <main className="container mx-auto px-4 pb-12">
+        {/* TOP SECTION: Gallery + Info + Policy */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-4 md:p-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            {/* Gallery (5/12) */}
+            <div className="md:col-span-5 space-y-4">
+              <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative group">
+                <img src={mainImage} alt="Main" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <button onClick={() => setIsWishlist(!isWishlist)} className="absolute top-4 right-4 p-3 bg-white rounded-full shadow-md">
+                  <Heart size={24} className={isWishlist ? "fill-red-500 text-red-500" : "text-gray-400"} />
+                </button>
+              </div>
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {product.images.map((img, idx) => (
+                  <button key={idx} onClick={() => setMainImage(img)} className={`w-20 h-20 rounded-lg border-2 transition-all flex-shrink-0 overflow-hidden ${mainImage === img ? 'border-blue-600' : 'border-transparent opacity-60'}`}>
+                    <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Info (4/12) */}
+            <div className="md:col-span-4 flex flex-col">
+              <span className="text-blue-600 font-bold text-xs uppercase tracking-widest">{product.brand}</span>
+              <h1 className="text-2xl font-bold mt-2 leading-tight">{product.name}</h1>
+              <div className="flex items-center gap-2 mt-2 mb-4">
+                <div className="flex text-yellow-400">
+                  {[1,2,3,4,5].map(i => <Star key={i} size={14} className="fill-current" />)}
+                </div>
+                <span className="text-xs text-gray-500">({product.reviewsCount} Đánh giá)</span>
+              </div>
+              <div className="mb-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-black text-red-600">{formatPrice(product.price)}</span>
+                  <span className="text-sm text-gray-400 line-through">{formatPrice(product.originalPrice)}</span>
+                </div>
+              </div>
+              
+              <div className="space-y-6 mb-8">
+                <div>
+                  <h3 className="text-xs font-bold text-gray-700 mb-3 uppercase">Màu sắc:</h3>
+                  <div className="flex gap-2">
+                    {product.colors.map((c, i) => (
+                      <button key={i} onClick={() => {setSelectedColor(c); setMainImage(c.img)}} className={`w-8 h-8 rounded-full border-2 p-0.5 ${selectedColor.name === c.name ? 'border-blue-600' : 'border-gray-200'}`}>
+                        <span className="w-full h-full rounded-full block" style={{backgroundColor: c.hex}}></span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-gray-700 mb-3 uppercase">Số lượng:</h3>
+                  <div className="flex items-center border border-gray-200 rounded-lg w-fit">
+                    <button onClick={() => setQuantity(Math.max(1, quantity-1))} className="p-2 hover:bg-gray-100"><Minus size={14} /></button>
+                    <span className="px-4 font-bold text-sm">{quantity}</span>
+                    <button onClick={() => setQuantity(quantity+1)} className="p-2 hover:bg-gray-100"><Plus size={14} /></button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 mt-auto">
+                <button onClick={() => showToast("Đã thêm vào giỏ!")} className="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all">
+                  <ShoppingCart size={18} /> Thêm vào giỏ
+                </button>
+                <button className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all uppercase text-sm tracking-wide">Mua ngay</button>
+              </div>
+            </div>
+
+            {/* Policy Sidebar (3/12) */}
+            <div className="md:col-span-3">
+              <div className="border border-gray-100 rounded-2xl p-5 space-y-4 bg-gray-50/50">
+                <h3 className="font-bold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2 text-sm">
+                  <ShieldCheck size={18} className="text-blue-600" />
+                  Chính sách bán hàng
+                </h3>
+                {[
+                  {icon: <PackageCheck size={18}/>, title: "Chính hãng", desc: "Đảm bảo 100% hàng thật", color: "text-blue-600"},
+                  {icon: <Truck size={18}/>, title: "Giao nhanh", desc: "Miễn phí đơn từ 2 triệu", color: "text-green-600"},
+                  {icon: <ArrowLeftRight size={18}/>, title: "Đổi trả", desc: "7 ngày lỗi nhà sản xuất", color: "text-orange-600"},
+                  {icon: <CreditCard size={18}/>, title: "Trả góp", desc: "Hỗ trợ 0% qua thẻ tín dụng", color: "text-purple-600"}
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-3">
+                    <div className={`flex-shrink-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 ${item.color}`}>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-800">{item.title}</h4>
+                      <p className="text-[10px] text-gray-500">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM SECTION: Description/Reviews (3/4) vs Specs (1/4) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          
+          {/* Left Column (9/12 = 3/4) */}
+          <div className="md:col-span-9 space-y-8">
+            {/* Description Section */}
+            <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+              <div className="border-b border-gray-100 pb-4 mb-6">
+                <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">Mô tả sản phẩm</h2>
+                <div className="h-1 w-16 bg-blue-600 mt-2"></div>
+              </div>
+              <div className="prose max-w-none text-gray-600 leading-relaxed">
+                <p className="italic mb-6 font-medium text-gray-800">{product.description}</p>
+                <div className="relative rounded-xl overflow-hidden mb-8 border border-gray-100">
+                  <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1200&auto=format&fit=crop" alt="Feature" className="w-full h-auto" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                    <div className="text-white">
+                      <h3 className="font-bold text-lg">CPU Dual Core 880MHz</h3>
+                      <p className="text-sm opacity-90">Hiệu năng xử lý âm thanh vượt trội, không độ trễ.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                  <div className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
+                    <div className="bg-blue-600 text-white p-2 rounded-lg"><HeadphonesIcon size={20}/></div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-sm">Âm thanh Hi-Res</h4>
+                      <p className="text-xs mt-1">Hỗ trợ dải tần rộng từ 20Hz đến 40kHz cho độ chi tiết cực cao.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
+                    <div className="bg-blue-600 text-white p-2 rounded-lg"><Check size={20}/></div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-sm">Chống ồn ANC</h4>
+                      <p className="text-xs mt-1">Khử nhiễu môi trường lên tới 98% cho không gian riêng tư.</p>
+                    </div>
+                  </div>
+                </div>
+                <p>Nếu bạn đang tìm kiếm một thiết bị âm thanh đỉnh cao, chắc chắn sẽ không thể bỏ qua bài viết ngay sau đây về dòng sản phẩm Pro Ultra mới nhất của AudioMax.</p>
+              </div>
+            </section>
+
+            {/* Reviews Section */}
+            <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+              <div className="border-b border-gray-100 pb-4 mb-6 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">Đánh giá khách hàng</h2>
+                <button className="text-blue-600 text-sm font-bold border border-blue-600 px-4 py-1.5 rounded-lg hover:bg-blue-50 transition-all">Viết đánh giá</button>
+              </div>
+              <div className="flex flex-col md:flex-row gap-8 items-center bg-gray-50 p-6 rounded-xl mb-8">
+                <div className="text-center px-6 md:border-r border-gray-200">
+                  <div className="text-5xl font-black text-gray-900">4.8</div>
+                  <div className="flex text-yellow-400 my-2">
+                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="fill-current" />)}
+                  </div>
+                  <div className="text-[10px] text-gray-400 font-bold uppercase">128 Đánh giá</div>
+                </div>
+                <div className="flex-1 w-full space-y-2">
+                  {[5,4,3,2,1].map(star => (
+                    <div key={star} className="flex items-center gap-3 text-xs">
+                      <span className="w-3 font-bold">{star}</span>
+                      <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-yellow-400" style={{width: star === 5 ? '80%' : star === 4 ? '15%' : '2%'}}></div>
+                      </div>
+                      <span className="text-gray-400 w-8">{star === 5 ? '80%' : star === 4 ? '15%' : '2%'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="pb-6 border-b border-gray-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">NH</div>
+                    <div>
+                      <div className="font-bold text-sm">Nguyễn Hải</div>
+                      <div className="flex text-yellow-400"><Star size={10} className="fill-current"/> <Star size={10} className="fill-current"/> <Star size={10} className="fill-current"/> <Star size={10} className="fill-current"/> <Star size={10} className="fill-current"/></div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 italic">"Sản phẩm rất tốt, đóng gói kỹ càng, giao hàng cực nhanh. Chống ồn hoạt động hiệu quả bất ngờ!"</p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Right Column (3/12 = 1/4) */}
+          <div className="md:col-span-3">
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm sticky top-8 border border-gray-100">
+              <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+                <h2 className="text-base font-bold text-gray-900 uppercase">Thông số kỹ thuật</h2>
+              </div>
+              <div className="divide-y divide-gray-50">
+                <div className="p-3 text-[10px] uppercase font-bold text-gray-400 bg-gray-50/30">Details</div>
+                {product.specifications.map((spec, idx) => (
+                  <div key={idx} className="flex justify-between p-4 gap-4 transition-colors hover:bg-blue-50/30">
+                    <span className="text-xs font-bold text-gray-500 w-1/2">{spec.label}</span>
+                    <span className="text-xs font-medium text-gray-800 text-right w-1/2">{spec.value}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="p-5 space-y-4">
+                <button className="w-full flex items-center justify-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors py-2 group">
+                  <FileDown size={16} className="group-hover:translate-y-0.5 transition-transform" />
+                  <span>Download file Datasheet</span>
+                </button>
+                <button className="w-full py-2.5 px-4 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center gap-1">
+                  Xem thêm thông số kỹ thuật <ChevronDown size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Related Products */}
+        <section className="mt-20">
+          <h2 className="text-xl font-bold mb-8">Sản phẩm tương tự</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {relatedProducts.map(p => (
+              <div key={p.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg transition-all group">
+                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+                  <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                </div>
+                <h3 className="text-xs font-bold text-gray-800 line-clamp-2 mb-2 h-8">{p.name}</h3>
+                <div className="text-blue-600 font-bold text-sm">{formatPrice(p.price)}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
+export default ProductDetailPage;

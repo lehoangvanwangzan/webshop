@@ -50,4 +50,5 @@ export interface ProductQueryParams {
   search?: string;
   is_active?: number;
   is_featured?: number;
+  category_id?: number;
 }

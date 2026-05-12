@@ -14,6 +14,7 @@ import { AdminProductsPage } from '@features/products/pages/AdminProductsPage';
 import { AdminUsersPage } from '@features/users/pages/AdminUsersPage';
 import { AdminSettingsPage } from '@features/settings/pages/AdminSettingsPage';
 import { AdminOrdersPage } from '@features/orders/pages/AdminOrdersPage';
+import { ProductDetailPage } from '@features/products/pages/ProductDetailPage';
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.HOME, element: <HomePage /> },
       { path: ROUTES.BRANDS, element: <BrandsPage /> },
       { path: ROUTES.PRODUCTS, element: <div>Products Page (coming soon)</div> },
-      { path: ROUTES.PRODUCT_DETAIL, element: <div>Product Detail (coming soon)</div> },
+      { path: ROUTES.PRODUCT_DETAIL, element: <ProductDetailPage /> },
     ],
   },
   {

@@ -28,7 +28,7 @@ export class ProductsService {
   ) {}
 
   async findAll(query: QueryProductsDto): Promise<PaginatedResponse<Product>> {
-    const { page = 1, limit = 20, search, is_active, is_featured } = query;
+    const { page = 1, limit = 20, search, is_active, is_featured, category_id } = query;
 
     const qb = this.productRepo
       .createQueryBuilder('p')
@@ -44,6 +44,9 @@ export class ProductsService {
     }
     if (is_featured !== undefined && is_featured !== null) {
       qb.andWhere('p.is_featured = :is_featured', { is_featured: Boolean(is_featured) });
+    }
+    if (category_id) {
+      qb.andWhere('p.category_id = :category_id', { category_id });
     }
 
     qb.orderBy('p.created_at', 'DESC')
@@ -85,9 +88,8 @@ export class ProductsService {
   }
 
   async update(id: number, dto: UpdateProductDto): Promise<Product> {
-    const product = await this.findOne(id);
-    Object.assign(product, dto);
-    return this.productRepo.save(product);
+    await this.productRepo.update(id, dto);
+    return this.findOne(id);
   }
 
   async remove(id: number): Promise<{ deleted: boolean }> {

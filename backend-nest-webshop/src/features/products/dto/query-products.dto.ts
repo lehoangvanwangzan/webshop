@@ -29,4 +29,9 @@ export class QueryProductsDto {
   @IsNumber()
   @IsIn([0, 1])
   is_featured?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  category_id?: number;
 }

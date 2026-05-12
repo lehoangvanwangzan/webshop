@@ -315,7 +315,8 @@ export function ProductForm({ initialValues, onSuccess, onCancel }: Props) {
                       placeholder="Chọn danh mục..."
                       loading={crudLoading}
                       onCreate={async (name, slug) => {
-                        await createCategory.mutateAsync({ name, slug, is_active: true });
+                        const created = await createCategory.mutateAsync({ name, slug, is_active: true });
+                        form.setFieldValue('category_id', created.id);
                       }}
                       onEdit={async (id, name, slug) => {
                         await updateCategory.mutateAsync({ id, payload: { name, slug } });
@@ -334,7 +335,8 @@ export function ProductForm({ initialValues, onSuccess, onCancel }: Props) {
                       allowClear
                       loading={brandCrudLoading}
                       onCreate={async (name, slug) => {
-                        await createBrand.mutateAsync({ name, slug, is_active: true });
+                        const created = await createBrand.mutateAsync({ name, slug, is_active: true });
+                        form.setFieldValue('brand_id', created.id);
                       }}
                       onEdit={async (id, name, slug) => {
                         await updateBrand.mutateAsync({ id, payload: { name, slug } });
