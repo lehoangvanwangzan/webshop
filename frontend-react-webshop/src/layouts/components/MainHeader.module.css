@@ -1,0 +1,55 @@
+/* Desktop: 1 hàng ngang */
+.inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logoArea   { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.searchArea { flex: 1; max-width: 600px; min-width: 240px; }
+.rightArea  { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+.hotline    { display: flex; align-items: center; gap: 10px; }
+
+/* Ẩn các phần chỉ dùng cho mobile */
+.mobileSearchRow { display: none; }
+.cartMobile      { display: none; }
+.danhMucText     {}  /* hiện trên desktop */
+
+/* ── Mobile ≤ 1024px ────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .inner {
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 0;
+  }
+
+  /* Hàng 1: [☰ btn] [logo] [cart] — chiếm full width */
+  .logoArea {
+    width: 100%;
+    flex: none;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Ẩn hotline và search inline trên mobile */
+  .searchArea { display: none; }
+  .hotline    { display: none; }
+
+  /* Hiện cart mobile thay cho cart trong rightArea */
+  .rightArea  { display: none; }
+  .cartMobile { display: flex; align-items: center; }
+
+  /* Hàng 2: search full width */
+  .mobileSearchRow {
+    display: flex;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* Ẩn text "Danh mục" chỉ giữ icon */
+  .danhMucText { display: none; }
+}

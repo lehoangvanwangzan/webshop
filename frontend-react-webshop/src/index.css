@@ -66,6 +66,12 @@ body {
   margin: 0;
 }
 
+@media (max-width: 1024px) {
+  .topbar-right {
+    display: none !important;
+  }
+}
+
 h1,
 h2 {
   font-family: var(--heading);

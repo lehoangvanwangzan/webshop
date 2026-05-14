@@ -1,0 +1,18 @@
+.slide {
+  position: relative;
+  padding-bottom: 40%; /* desktop: tỉ lệ 2.5:1 */
+}
+
+/* tablet: tăng chiều cao để giữ chi tiết ảnh */
+@media (max-width: 1024px) {
+  .slide {
+    padding-bottom: 52%;
+  }
+}
+
+/* mobile: gần vuông để hiển thị toàn bộ nội dung ảnh */
+@media (max-width: 640px) {
+  .slide {
+    padding-bottom: 70%;
+  }
+}

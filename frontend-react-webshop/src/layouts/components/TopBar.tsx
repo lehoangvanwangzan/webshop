@@ -36,22 +36,23 @@ export function TopBar() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        overflow: 'hidden',
       }}>
         {/* Left: contact phones */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#4b5563' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#4b5563', flexWrap: 'wrap', overflow: 'hidden' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
             <CustomerServiceOutlined style={{ color: RED, fontSize: 14 }} />
-            Hà Nội <strong style={{ color: '#1f2937', marginLeft: 4 }}>0938.086.846</strong>
+            HN <strong style={{ color: '#1f2937' }}>0938.086.846</strong>
           </span>
           <span style={{ color: '#d1d5db' }}>|</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
             <CustomerServiceOutlined style={{ color: RED, fontSize: 14 }} />
-            Hồ Chí Minh <strong style={{ color: '#1f2937', marginLeft: 4 }}>0934.666.003</strong>
+            HCM <strong style={{ color: '#1f2937' }}>0934.666.003</strong>
           </span>
         </div>
 
-        {/* Right: utility links + auth */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        {/* Right: utility links + auth — ẩn trên mobile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }} className="topbar-right">
           <a href="#" style={linkStyle} className="topbar-link">
             <InfoCircleOutlined /> FAQs
           </a>

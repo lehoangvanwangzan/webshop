@@ -1,0 +1,13 @@
+.nav-category-mobile {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .nav-category-desktop {
+    display: none;
+  }
+  .nav-category-mobile {
+    display: flex;
+    align-items: stretch;
+  }
+}

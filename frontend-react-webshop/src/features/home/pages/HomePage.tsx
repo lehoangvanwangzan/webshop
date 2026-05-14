@@ -1,10 +1,11 @@
 import { useCategories } from '@/features/categories/hooks/useCategories';
+import '../styles/HomePage.css';
 import { Spin, Alert } from 'antd';
 import { FeatureHighlights } from '../components/FeatureHighlights';
 import { FeaturedProducts } from '../components/FeaturedProducts';
 import { ProductGrid } from '../components/ProductGrid';
-// import { HeroSection } from '../components/HeroSection';
 import { HomeCategories } from '../components/HomeCategories';
+import { PromoBanners } from '../components/PromoBanners';
 
 export function HomePage() {
   const { data: categories, isLoading, isError } = useCategories();
@@ -13,9 +14,11 @@ export function HomePage() {
     <div style={{ paddingTop: 16 }}>
       {/* Hero section: sidebar + banner */}
       <div className="home-container">
-        <div className="home-hero-layout">
-          <HomeCategories />
-          {/* <HeroSection /> */}
+        <div style={{ display: 'flex', gap: 16, paddingBottom: 16, alignItems: 'stretch' }}>
+          <div className="hide-on-tablet">
+            <HomeCategories />
+          </div>
+          <PromoBanners />
         </div>
       </div>
 

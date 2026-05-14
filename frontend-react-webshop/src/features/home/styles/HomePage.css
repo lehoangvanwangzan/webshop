@@ -1,3 +1,10 @@
+/* HomeCategories sidebar ẩn trên tablet/mobile */
+@media (max-width: 1024px) {
+  .home-categories-desktop {
+    display: none;
+  }
+}
+
 .featured-section {
   border: 1.5px solid #d71a21;
   border-radius: 8px;
