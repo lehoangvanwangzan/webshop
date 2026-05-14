@@ -19,6 +19,7 @@ const { Text } = Typography;
 
 export function AdminProductsPage() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState<number | undefined>(undefined);
@@ -32,7 +33,7 @@ export function AdminProductsPage() {
 
   const { data, isLoading } = useProducts({
     page,
-    limit: 20,
+    limit: pageSize,
     search: debouncedSearch || undefined,
     is_active: isActiveFilter,
   });
@@ -80,7 +81,7 @@ export function AdminProductsPage() {
     setEditingProduct(undefined);
   };
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = pageSize;
 
   const columns: ColumnsType<Product> = [
     {
@@ -312,11 +313,12 @@ export function AdminProductsPage() {
           scroll={{ x: 1160 }}
           pagination={{
             current: page,
-            pageSize: 20,
+            pageSize,
             total: data?.total ?? 0,
-            onChange: (p) => setPage(p),
+            onChange: (p, ps) => { setPage(p); setPageSize(ps); },
             showTotal: (total) => `Tổng ${total} sản phẩm`,
-            showSizeChanger: false,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
           }}
           className="rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
         />
@@ -429,11 +431,12 @@ export function AdminProductsPage() {
 
           <Pagination
             current={page}
-            pageSize={20}
+            pageSize={pageSize}
             total={data?.total ?? 0}
-            onChange={(p) => setPage(p)}
+            onChange={(p, ps) => { setPage(p); setPageSize(ps); }}
             showTotal={(total) => `Tổng ${total} sản phẩm`}
-            showSizeChanger={false}
+            showSizeChanger={true}
+            pageSizeOptions={['10', '20', '50', '100']}
             className="text-center"
           />
         </>

@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  Star, 
-  ShoppingCart, 
-  Heart, 
-  Truck, 
-  ShieldCheck, 
-  ArrowLeftRight, 
-  Plus, 
-  Minus, 
+import {
+  Star,
+  ShoppingCart,
+  Heart,
+  Truck,
+  ShieldCheck,
+  ArrowLeftRight,
+  Plus,
+  Minus,
   Check,
   ChevronRight,
   CreditCard,
@@ -28,7 +28,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { productsApi, resolveProductImageUrl } from '../api/products.api';
 import { ROUTES } from '@/routes/routes';
-import { Button, message, Skeleton } from 'antd';
+import { Button, message } from 'antd';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,7 +36,7 @@ export function ProductDetailPage() {
   const swiperRef = React.useRef<any>(null);
 
   // Fetch Product Data
-  const { data: product, isLoading, isError, error } = useQuery({
+  const { data: product, isLoading, isError } = useQuery({
     queryKey: ['product', productId],
     queryFn: () => productsApi.findOne(productId),
     enabled: !!productId,
@@ -98,7 +98,7 @@ export function ProductDetailPage() {
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       <nav className="container mx-auto px-4 py-4 text-sm text-gray-500">
         <ul className="flex items-center gap-2 flex-wrap">
-          <li><Link to={ROUTES.HOME} className="hover:text-blue-600 transition-colors">Trang chủ</Link></li> 
+          <li><Link to={ROUTES.HOME} className="hover:text-blue-600 transition-colors">Trang chủ</Link></li>
           <ChevronRight size={14} />
           {product.category && (
             <>
@@ -132,15 +132,15 @@ export function ProductDetailPage() {
                 >
                   {productImages.map((img) => (
                     <SwiperSlide key={img.id}>
-                      <img 
-                        src={resolveProductImageUrl(img.image_url)} 
-                        alt={product.name} 
-                        className="w-full h-full object-cover" 
+                      <img
+                        src={resolveProductImageUrl(img.image_url)}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
                       />
                     </SwiperSlide>
                   ))}
                 </Swiper>
-                
+
                 {/* Custom Navigation Buttons */}
                 <button className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md text-gray-800 hover:bg-white transition-all opacity-0 group-hover:opacity-100">
                   <ChevronLeft size={20} />
@@ -149,8 +149,8 @@ export function ProductDetailPage() {
                   <ChevronRight size={20} />
                 </button>
 
-                <button 
-                  onClick={() => setIsWishlist(!isWishlist)} 
+                <button
+                  onClick={() => setIsWishlist(!isWishlist)}
                   className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:scale-110 transition-transform z-20"
                 >
                   <Heart size={24} className={isWishlist ? "fill-red-500 text-red-500" : "text-gray-400"} />
@@ -162,9 +162,9 @@ export function ProductDetailPage() {
                 {product.images?.map((img, idx) => {
                   const url = resolveProductImageUrl(img.image_url);
                   return (
-                    <button 
-                      key={img.id} 
-                      onClick={() => swiperRef.current?.slideToLoop(idx)} 
+                    <button
+                      key={img.id}
+                      onClick={() => swiperRef.current?.slideToLoop(idx)}
                       className={`w-20 h-20 rounded-lg border-2 transition-all flex-shrink-0 overflow-hidden ${activeIndex === idx ? 'border-blue-600 ring-2 ring-blue-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
                     >
                       <img src={url} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
@@ -182,13 +182,13 @@ export function ProductDetailPage() {
               <h1 className="text-2xl font-bold mt-2 leading-tight text-gray-900">{product.name}</h1>
               <div className="flex items-center gap-2 mt-2 mb-4">
                 <div className="flex text-yellow-400">
-                  {[1,2,3,4,5].map(i => <Star key={i} size={14} className="fill-current" />)}
+                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} className="fill-current" />)}
                 </div>
                 <span className="text-xs text-gray-500">(128 Đánh giá)</span>
                 <span className="text-xs text-gray-300">|</span>
                 <span className="text-xs text-gray-500">Đã bán 1.5k+</span>
               </div>
-              
+
               <div className="mb-6 bg-gray-50 p-4 rounded-xl">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl font-black text-red-600">
@@ -206,21 +206,21 @@ export function ProductDetailPage() {
                   )}
                 </div>
               </div>
-              
+
               <div className="space-y-6 mb-8">
                 <div>
                   <h3 className="text-xs font-bold text-gray-700 mb-3 uppercase">Số lượng:</h3>
                   <div className="flex items-center border border-gray-200 rounded-lg w-fit bg-white">
-                    <button 
-                      onClick={() => setQuantity(Math.max(1, quantity-1))} 
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
                       disabled={quantity <= 1}
                     >
                       <Minus size={14} />
                     </button>
                     <span className="px-6 font-bold text-sm min-w-[50px] text-center">{quantity}</span>
-                    <button 
-                      onClick={() => setQuantity(quantity+1)} 
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
                       className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
                       disabled={quantity >= product.stock}
                     >
@@ -232,7 +232,7 @@ export function ProductDetailPage() {
               </div>
 
               <div className="flex flex-col gap-3 mt-auto">
-                <button 
+                <button
                   onClick={handleAddToCart}
                   className="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all active:scale-[0.98]"
                 >
@@ -252,10 +252,10 @@ export function ProductDetailPage() {
                   Chính sách bán hàng
                 </h3>
                 {[
-                  {icon: <PackageCheck size={18}/>, title: "Chính hãng", desc: "Đảm bảo 100% hàng thật", color: "text-blue-600"},
-                  {icon: <Truck size={18}/>, title: "Giao nhanh", desc: "Miễn phí đơn từ 2 triệu", color: "text-green-600"},
-                  {icon: <ArrowLeftRight size={18}/>, title: "Đổi trả", desc: "7 ngày lỗi nhà sản xuất", color: "text-orange-600"},
-                  {icon: <CreditCard size={18}/>, title: "Trả góp", desc: "Hỗ trợ 0% qua thẻ tín dụng", color: "text-purple-600"}
+                  { icon: <PackageCheck size={18} />, title: "Chính hãng", desc: "Đảm bảo 100% hàng thật", color: "text-blue-600" },
+                  { icon: <Truck size={18} />, title: "Giao nhanh", desc: "Miễn phí đơn từ 2 triệu", color: "text-green-600" },
+                  { icon: <ArrowLeftRight size={18} />, title: "Đổi trả", desc: "7 ngày lỗi nhà sản xuất", color: "text-orange-600" },
+                  { icon: <CreditCard size={18} />, title: "Trả góp", desc: "Hỗ trợ 0% qua thẻ tín dụng", color: "text-purple-600" }
                 ].map((item, idx) => (
                   <div key={idx} className="flex gap-3 items-center">
                     <div className={`flex-shrink-0 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 ${item.color}`}>
@@ -268,7 +268,7 @@ export function ProductDetailPage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-4 p-4 rounded-2xl border border-dashed border-gray-200 bg-white">
                 <p className="text-[10px] text-gray-400 text-center">Giao hàng đến: <span className="font-bold text-gray-700">Hà Nội, Việt Nam</span></p>
               </div>
@@ -278,7 +278,7 @@ export function ProductDetailPage() {
 
         {/* BOTTOM SECTION: Description/Reviews (3/4) vs Specs (1/4) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          
+
           {/* Left Column (9/12 = 3/4) */}
           <div className="md:col-span-9 space-y-8">
             {/* Description Section */}
@@ -293,40 +293,40 @@ export function ProductDetailPage() {
                     {product.short_description}
                   </p>
                 )}
-                
-                <div 
-                  className="rich-text-content" 
-                  dangerouslySetInnerHTML={{ __html: product.description || '<p>Đang cập nhật nội dung...</p>' }} 
+
+                <div
+                  className="rich-text-content"
+                  dangerouslySetInnerHTML={{ __html: product.description || '<p>Đang cập nhật nội dung...</p>' }}
                 />
 
                 {!product.description && (
-                   <div className="space-y-4">
-                      <div className="relative rounded-xl overflow-hidden mb-8 border border-gray-100">
-                        <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1200&auto=format&fit=crop" alt="Feature" className="w-full h-auto" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                          <div className="text-white">
-                            <h3 className="font-bold text-lg">Hiệu năng vượt trội</h3>
-                            <p className="text-sm opacity-90">Thiết kế hiện đại, công nghệ tiên tiến nhất.</p>
-                          </div>
+                  <div className="space-y-4">
+                    <div className="relative rounded-xl overflow-hidden mb-8 border border-gray-100">
+                      <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1200&auto=format&fit=crop" alt="Feature" className="w-full h-auto" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                        <div className="text-white">
+                          <h3 className="font-bold text-lg">Hiệu năng vượt trội</h3>
+                          <p className="text-sm opacity-90">Thiết kế hiện đại, công nghệ tiên tiến nhất.</p>
                         </div>
                       </div>
-                      <div className="grid md:grid-cols-2 gap-6 mb-8">
-                        <div className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
-                          <div className="bg-blue-600 text-white p-2 rounded-lg"><HeadphonesIcon size={20}/></div>
-                          <div>
-                            <h4 className="font-bold text-gray-900 text-sm">Chất lượng đỉnh cao</h4>
-                            <p className="text-xs mt-1">Sản phẩm được gia công tỉ mỉ, độ bền vượt thời gian.</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
-                          <div className="bg-blue-600 text-white p-2 rounded-lg"><Check size={20}/></div>
-                          <div>
-                            <h4 className="font-bold text-gray-900 text-sm">Đã qua kiểm định</h4>
-                            <p className="text-xs mt-1">100% sản phẩm đạt tiêu chuẩn chất lượng quốc tế.</p>
-                          </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                      <div className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
+                        <div className="bg-blue-600 text-white p-2 rounded-lg"><HeadphonesIcon size={20} /></div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm">Chất lượng đỉnh cao</h4>
+                          <p className="text-xs mt-1">Sản phẩm được gia công tỉ mỉ, độ bền vượt thời gian.</p>
                         </div>
                       </div>
-                   </div>
+                      <div className="flex gap-4 items-start p-4 bg-gray-50 rounded-xl">
+                        <div className="bg-blue-600 text-white p-2 rounded-lg"><Check size={20} /></div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm">Đã qua kiểm định</h4>
+                          <p className="text-xs mt-1">100% sản phẩm đạt tiêu chuẩn chất lượng quốc tế.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </section>
@@ -341,23 +341,23 @@ export function ProductDetailPage() {
                 <div className="text-center px-6 md:border-r border-gray-200">
                   <div className="text-5xl font-black text-gray-900">4.8</div>
                   <div className="flex text-yellow-400 my-2">
-                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="fill-current" />)}
+                    {[1, 2, 3, 4, 5].map(i => <Star key={i} size={16} className="fill-current" />)}
                   </div>
                   <div className="text-[10px] text-gray-400 font-bold uppercase">128 Đánh giá</div>
                 </div>
                 <div className="flex-1 w-full space-y-2">
-                  {[5,4,3,2,1].map(star => (
+                  {[5, 4, 3, 2, 1].map(star => (
                     <div key={star} className="flex items-center gap-3 text-xs">
                       <span className="w-3 font-bold">{star}</span>
                       <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-yellow-400" style={{width: star === 5 ? '80%' : star === 4 ? '15%' : '2%'}}></div>
+                        <div className="h-full bg-yellow-400" style={{ width: star === 5 ? '80%' : star === 4 ? '15%' : '2%' }}></div>
                       </div>
                       <span className="text-gray-400 w-8">{star === 5 ? '80%' : star === 4 ? '15%' : '2%'}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div className="space-y-6">
                 <div className="pb-6 border-b border-gray-100">
                   <div className="flex items-center gap-3 mb-2">
@@ -365,7 +365,7 @@ export function ProductDetailPage() {
                     <div>
                       <div className="font-bold text-sm">Nguyễn Hải</div>
                       <div className="flex text-yellow-400">
-                        {[1,2,3,4,5].map(i => <Star key={i} size={10} className="fill-current"/>)}
+                        {[1, 2, 3, 4, 5].map(i => <Star key={i} size={10} className="fill-current" />)}
                       </div>
                     </div>
                   </div>
@@ -400,7 +400,7 @@ export function ProductDetailPage() {
                   <span className="text-xs font-medium text-green-600 text-right w-1/2">{product.stock > 0 ? 'Còn hàng' : 'Hết hàng'}</span>
                 </div>
               </div>
-              
+
               <div className="p-5 space-y-4">
                 <button className="w-full flex items-center justify-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors py-2 group">
                   <FileDown size={16} className="group-hover:translate-y-0.5 transition-transform" />
@@ -426,17 +426,17 @@ export function ProductDetailPage() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map(p => {
-                 const imgUrl = p.images?.[0]?.image_url
-                    ? resolveProductImageUrl(p.images[0].image_url)
-                    : '/placeholder.png';
-                 return (
+                const imgUrl = p.images?.[0]?.image_url
+                  ? resolveProductImageUrl(p.images[0].image_url)
+                  : '/placeholder.png';
+                return (
                   <Link key={p.id} to={ROUTES.PRODUCT_DETAIL.replace(':id', p.id.toString())} className="group">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                       <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 border border-gray-50">
-                        <img 
-                          src={imgUrl} 
-                          alt={p.name} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                        <img
+                          src={imgUrl}
+                          alt={p.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>
                       <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-2 h-10 group-hover:text-blue-600 transition-colors">{p.name}</h3>
@@ -448,7 +448,7 @@ export function ProductDetailPage() {
                       </div>
                     </div>
                   </Link>
-                 );
+                );
               })}
             </div>
           </section>

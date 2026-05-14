@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router';
 import {
   LayoutDashboard, Package, Users, Settings,
-  Bell, Menu, X, ShoppingCart, LogOut, ChevronRight, ClipboardList,
+  Bell, Menu, X, ShoppingCart, LogOut, ChevronRight, ClipboardList, Image,
 } from 'lucide-react';
 import { App } from 'antd';
 import { useAuthStore } from '@features/auth/stores/auth.store';
@@ -13,6 +13,7 @@ import { ROUTES } from '@routes/routes';
 const NAV_ITEMS = [
   { to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard, label: 'Bảng điều khiển' },
   { to: ROUTES.ADMIN_PRODUCTS, icon: Package, label: 'Sản phẩm' },
+  { to: ROUTES.ADMIN_BANNERS, icon: Image, label: 'Banners' },
   { to: ROUTES.ADMIN_ORDERS, icon: ClipboardList, label: 'Đơn hàng' },
   { to: ROUTES.ADMIN_USERS, icon: Users, label: 'Người dùng' },
   { to: ROUTES.ADMIN_SETTINGS, icon: Settings, label: 'Cài đặt' },

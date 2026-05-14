@@ -30,11 +30,8 @@ export class ProductsService {
   async findAll(query: QueryProductsDto): Promise<PaginatedResponse<Product>> {
     const { page = 1, limit = 20, search, is_active, is_featured, category_id } = query;
 
-    const qb = this.productRepo
-      .createQueryBuilder('p')
-      .leftJoinAndSelect('p.category', 'category')
-      .leftJoinAndSelect('p.brand', 'brand')
-      .leftJoinAndSelect('p.images', 'images');
+    // 1. Tạo QueryBuilder cơ bản để lọc
+    const qb = this.productRepo.createQueryBuilder('p');
 
     if (search) {
       qb.andWhere('(p.name LIKE :s OR p.sku LIKE :s)', { s: `%${search}%` });
@@ -49,12 +46,34 @@ export class ProductsService {
       qb.andWhere('p.category_id = :category_id', { category_id });
     }
 
-    qb.orderBy('p.created_at', 'DESC')
-      .addOrderBy('images.sort_order', 'ASC')
-      .skip((page - 1) * limit)
-      .take(limit);
+    // 2. Lấy tổng số lượng (để phân trang)
+    const total = await qb.getCount();
 
-    const [items, total] = await qb.getManyAndCount();
+    // 3. Lấy danh sách ID của trang hiện tại
+    const idItems = await qb
+      .select('p.id')
+      .orderBy('p.created_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    const ids = idItems.map((r) => r.id);
+
+    if (ids.length === 0) {
+      return { items: [], total, page, limit, totalPages: Math.ceil(total / limit) };
+    }
+
+    // 4. Lấy đầy đủ thông tin cho các ID này
+    const items = await this.productRepo
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.category', 'category')
+      .leftJoinAndSelect('p.brand', 'brand')
+      .leftJoinAndSelect('p.images', 'images')
+      .where('p.id IN (:...ids)', { ids })
+      .orderBy('p.created_at', 'DESC')
+      .addOrderBy('images.sort_order', 'ASC')
+      .getMany();
+
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 

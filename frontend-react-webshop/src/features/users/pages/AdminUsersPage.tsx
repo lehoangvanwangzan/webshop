@@ -27,6 +27,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
 
 export function AdminUsersPage() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | undefined>(undefined);
@@ -42,7 +43,7 @@ export function AdminUsersPage() {
 
   const { data, isLoading } = useUsers({
     page,
-    limit: 20,
+    limit: pageSize,
     search: debouncedSearch || undefined,
     role: roleFilter,
     is_active: isActiveFilter,
@@ -81,7 +82,7 @@ export function AdminUsersPage() {
     setPage(1);
   };
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = pageSize;
 
   const columns: ColumnsType<AdminUser> = [
     {
@@ -258,11 +259,12 @@ export function AdminUsersPage() {
         showSorterTooltip={{ target: 'sorter-icon' }}
         pagination={{
           current: page,
-          pageSize: 20,
+          pageSize,
           total: data?.total ?? 0,
-          onChange: (p) => setPage(p),
+          onChange: (p, ps) => { setPage(p); setPageSize(ps); },
           showTotal: (total) => `Tổng ${total} người dùng`,
-          showSizeChanger: false,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
         }}
         className="rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
       />

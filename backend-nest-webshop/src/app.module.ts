@@ -10,6 +10,7 @@ import { CategoriesModule } from '@features/categories/categories.module';
 import { ProductsModule } from '@features/products/products.module';
 import { UsersModule } from '@features/users/users.module';
 import { DashboardModule } from '@features/dashboard/dashboard.module';
+import { BannersModule } from '@features/banners/banners.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { DashboardModule } from '@features/dashboard/dashboard.module';
     ProductsModule,
     UsersModule,
     DashboardModule,
+    BannersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

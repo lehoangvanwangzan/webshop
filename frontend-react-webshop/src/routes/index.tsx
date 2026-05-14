@@ -11,6 +11,7 @@ import { HomePage } from '@features/home/pages/HomePage';
 import { BrandsPage } from '@features/brands/pages/BrandsPage';
 import { AdminDashboardPage } from '@features/dashboard/pages/AdminDashboardPage';
 import { AdminProductsPage } from '@features/products/pages/AdminProductsPage';
+import { AdminBannersPage } from '@features/banners/pages/AdminBannersPage';
 import { AdminUsersPage } from '@features/users/pages/AdminUsersPage';
 import { AdminSettingsPage } from '@features/settings/pages/AdminSettingsPage';
 import { AdminOrdersPage } from '@features/orders/pages/AdminOrdersPage';
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.ADMIN, element: <Navigate to={ROUTES.ADMIN_DASHBOARD} replace /> },
           { path: ROUTES.ADMIN_DASHBOARD, element: <AdminDashboardPage /> },
           { path: ROUTES.ADMIN_PRODUCTS, element: <AdminProductsPage /> },
+          { path: ROUTES.ADMIN_BANNERS, element: <AdminBannersPage /> },
           { path: ROUTES.ADMIN_USERS, element: <AdminUsersPage /> },
           { path: ROUTES.ADMIN_ORDERS, element: <AdminOrdersPage /> },
           { path: ROUTES.ADMIN_SETTINGS, element: <AdminSettingsPage /> },
