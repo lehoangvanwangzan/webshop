@@ -7,6 +7,7 @@ export const ROUTES = {
   CATEGORIES: '/categories',
   BRANDS: '/brands',
   CART: '/cart',
+  CHECKOUT: '/checkout',
   ORDERS: '/orders',
   ORDER_DETAIL: '/orders/:id',
   PROFILE: '/profile',
@@ -17,4 +18,6 @@ export const ROUTES = {
   ADMIN_USERS: '/admin/users',
   ADMIN_ORDERS: '/admin/orders',
   ADMIN_SETTINGS: '/admin/settings',
+  ADMIN_CATEGORIES: '/admin/categories',
+  ADMIN_BRANDS: '/admin/brands',
 } as const;

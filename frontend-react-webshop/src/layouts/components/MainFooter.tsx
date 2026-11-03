@@ -1,3 +1,5 @@
+import styles from './MainFooter.module.css';
+
 const POLICY_LINKS = [
   'Chính sách bảo hành',
   'Chính sách đổi trả',
@@ -5,59 +7,41 @@ const POLICY_LINKS = [
   'Điều khoản sử dụng',
 ];
 
+/** Responsive: desktop 3 cột → tablet 1 + 2 cột → mobile 1 cột (xem MainFooter.module.css) */
 export function MainFooter() {
   return (
-    <footer style={{ background: '#1f2937', color: '#9ca3af', padding: '32px 16px', marginTop: 32 }}>
-      <div style={{
-        maxWidth: 1440,
-        margin: '0 auto',
-        padding: '0 24px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 32,
-      }}>
+    <footer className={styles.footer}>
+      <div className={styles.grid}>
         {/* Branding */}
-        <div>
-          <img
-            src="/logo.png"
-            alt="Hoàng Văn"
-            style={{ height: 56, marginBottom: 12, filter: 'brightness(0) invert(1)' }}
-          />
-          <p style={{ fontSize: 13, lineHeight: 1.7 }}>
+        <div className={styles.brand}>
+          <img src="/logo.png" alt="Hoàng Văn" className={styles.logo} />
+          <p className={styles.text}>
             Hoàng Văn — Giải pháp công nghệ toàn diện cho doanh nghiệp và cá nhân.
           </p>
         </div>
 
         {/* Contact */}
         <div>
-          <h4 style={{ color: '#fff', marginBottom: 12 }}>Liên hệ</h4>
-          <p style={{ fontSize: 13, lineHeight: 2 }}>
-            📞 Hotline: 0934.666.003<br />
-            ✉️ Email: sales@hoangvan.vn<br />
-            📍 Hà Nội &amp; Hồ Chí Minh
-          </p>
+          <h4 className={styles.heading}>Liên hệ</h4>
+          <ul className={styles.list}>
+            <li className={styles.contactItem}><span>📞</span><a href="tel:0934666003">0934.666.003</a></li>
+            <li className={styles.contactItem}><span>✉️</span><a href="mailto:sales@hoangvan.vn">sales@hoangvan.vn</a></li>
+            <li className={styles.contactItem}><span>📍</span><span>Hà Nội &amp; Hồ Chí Minh</span></li>
+          </ul>
         </div>
 
         {/* Policies */}
         <div>
-          <h4 style={{ color: '#fff', marginBottom: 12 }}>Chính sách</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
+          <h4 className={styles.heading}>Chính sách</h4>
+          <ul className={styles.list}>
             {POLICY_LINKS.map((t) => (
-              <a key={t} href="#" style={{ color: '#9ca3af' }}>{t}</a>
+              <li key={t}><a href="#">{t}</a></li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
 
-      {/* Copyright */}
-      <div style={{
-        maxWidth: 1440,
-        margin: '24px auto 0',
-        padding: '16px 24px 0',
-        borderTop: '1px solid #374151',
-        textAlign: 'center',
-        fontSize: 12,
-      }}>
+      <div className={styles.copyright}>
         © 2026 Hoàng Văn — Giải pháp công nghệ. All rights reserved.
       </div>
     </footer>

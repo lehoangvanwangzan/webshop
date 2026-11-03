@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import {
   Table, Button, Input, Select, Tag, Popconfirm, App, Space, Typography,
-  Segmented, Pagination, Tooltip,
+  Segmented, Pagination, Tooltip, Modal, Upload, Progress, Divider,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, CopyOutlined,
   AppstoreOutlined, BarsOutlined, PictureOutlined,
+  UploadOutlined, DownloadOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { COLORS } from '@shared/constants/colors';
 import { PageLayout } from '@shared/components/PageLayout';
-import { useProducts, useDeleteProduct } from '../hooks/useProducts';
-import { resolveProductImageUrl } from '../api/products.api';
+import { useProducts, useDeleteProduct, useCreateProduct } from '../hooks/useProducts';
+import { resolveProductImageUrl, productsApi } from '../api/products.api';
 import { ProductForm } from '../components/ProductForm';
 import type { Product } from '../types/products.types';
 
@@ -28,8 +30,14 @@ export function AdminProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
 
+  const [importOpen, setImportOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
+  const [importResult, setImportResult] = useState<{ ok: number; fail: number; errors: string[] } | null>(null);
+
   const { message } = App.useApp();
   const deleteProduct = useDeleteProduct();
+  const createProduct = useCreateProduct();
 
   const { data, isLoading } = useProducts({
     page,
@@ -79,6 +87,98 @@ export function AdminProductsPage() {
   const handleFormCancel = () => {
     setIsFormOpen(false);
     setEditingProduct(undefined);
+  };
+
+  const downloadWorkbook = (wb: XLSX.WorkBook, filename: string) => {
+    const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await productsApi.findAll({ page: 1, limit: 9999 });
+      const rows = res.items.map((p) => ({
+        name: p.name,
+        sku: p.sku,
+        price: Number(p.price),
+        discount_price: p.discount_price ? Number(p.discount_price) : '',
+        stock: p.stock,
+        is_active: p.is_active,
+        is_featured: p.is_featured ? 1 : 0,
+        category_id: p.category?.id ?? '',
+        brand_id: p.brand?.id ?? '',
+        short_description: p.short_description ?? '',
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Products');
+      downloadWorkbook(wb, 'products.xlsx');
+      message.success('Xuất Excel thành công');
+    } catch {
+      message.error('Xuất Excel thất bại');
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const templateRows = [
+      {
+        name: 'Sản phẩm mẫu',
+        sku: 'SKU-001',
+        price: 1000000,
+        discount_price: '',
+        stock: 10,
+        is_active: 1,
+        is_featured: 0,
+        category_id: 1,
+        brand_id: '',
+        short_description: 'Mô tả ngắn',
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateRows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    downloadWorkbook(wb, 'product_template.xlsx');
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true); setImportProgress(0); setImportResult(null);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json<Record<string, any>>(ws);
+      let ok = 0;
+      const errors: string[] = [];
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        try {
+          await createProduct.mutateAsync({
+            name: String(r.name ?? ''),
+            sku: String(r.sku ?? ''),
+            price: Number(r.price) || 0,
+            discount_price: r.discount_price !== '' && r.discount_price != null ? Number(r.discount_price) : undefined,
+            stock: Number(r.stock) || 0,
+            is_active: Number(r.is_active) || 1,
+            is_featured: Number(r.is_featured) === 1,
+            category_id: Number(r.category_id) || 0,
+            brand_id: r.brand_id !== '' && r.brand_id != null ? Number(r.brand_id) : undefined,
+            short_description: r.short_description ? String(r.short_description) : undefined,
+          });
+          ok++;
+        } catch (e: any) {
+          errors.push(`Dòng ${i + 2}: ${e?.message ?? 'Lỗi không xác định'}`);
+        }
+        setImportProgress(Math.round(((i + 1) / rows.length) * 100));
+      }
+      setImportResult({ ok, fail: errors.length, errors });
+    } catch {
+      message.error('Không đọc được file. Vui lòng dùng file .xlsx đúng định dạng.');
+    }
+    setImporting(false);
   };
 
   const PAGE_SIZE = pageSize;
@@ -258,18 +358,23 @@ export function AdminProductsPage() {
   }
 
   return (
+    <>
     <PageLayout
       title="Quản lý sản phẩm"
       subtitle="Quản lý danh mục sản phẩm"
       action={
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          style={{ background: COLORS.primary, borderColor: COLORS.primary }}
-          onClick={() => { setEditingProduct(undefined); setIsFormOpen(true); }}
-        >
-          Thêm sản phẩm
-        </Button>
+        <Space>
+          <Button icon={<DownloadOutlined />} onClick={handleExport}>Export CSV</Button>
+          <Button icon={<UploadOutlined />} onClick={() => { setImportOpen(true); setImportResult(null); }}>Import CSV</Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{ background: COLORS.primary, borderColor: COLORS.primary }}
+            onClick={() => { setEditingProduct(undefined); setIsFormOpen(true); }}
+          >
+            Thêm sản phẩm
+          </Button>
+        </Space>
       }
     >
 
@@ -442,5 +547,40 @@ export function AdminProductsPage() {
         </>
       )}
     </PageLayout>
+
+      <Modal
+        title="Import sản phẩm từ CSV"
+        open={importOpen}
+        footer={null}
+        onCancel={() => !importing && setImportOpen(false)}
+      >
+        <Button size="small" icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>
+          Tải file mẫu (.xlsx)
+        </Button>
+        <Divider />
+        <Upload.Dragger
+          accept=".xlsx,.xls"
+          showUploadList={false}
+          disabled={importing}
+          beforeUpload={(file) => { handleImport(file); return false; }}
+        >
+          <p style={{ margin: 0 }}>Kéo thả hoặc click để chọn file Excel</p>
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: '#9ca3af' }}>Hỗ trợ định dạng .xlsx, .xls</p>
+        </Upload.Dragger>
+        {importing && (
+          <Progress percent={importProgress} style={{ marginTop: 16 }} />
+        )}
+        {importResult && (
+          <div style={{ marginTop: 12 }}>
+            <p style={{ margin: '0 0 4px' }}>
+              ✅ Thành công: <strong>{importResult.ok}</strong> &nbsp;|&nbsp; ❌ Thất bại: <strong>{importResult.fail}</strong>
+            </p>
+            {importResult.errors.map((e, i) => (
+              <p key={i} style={{ margin: 0, color: '#ef4444', fontSize: 12 }}>{e}</p>
+            ))}
+          </div>
+        )}
+      </Modal>
+    </>
   );
 }

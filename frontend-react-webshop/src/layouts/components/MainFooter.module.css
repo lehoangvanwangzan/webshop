@@ -1,0 +1,99 @@
+.footer {
+  background: #1f2937;
+  color: #9ca3af;
+  padding: 32px 0;
+  margin-top: 32px;
+}
+
+.grid {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 32px;
+}
+
+.logo {
+  height: 56px;
+  margin-bottom: 12px;
+  filter: brightness(0) invert(1);
+}
+
+.text {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 360px;
+}
+
+.heading {
+  color: #fff;
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.list a {
+  color: #9ca3af;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.list a:hover {
+  color: #fff;
+}
+
+.contactItem {
+  display: flex;
+  gap: 8px;
+}
+
+.copyright {
+  max-width: 1440px;
+  margin: 24px auto 0;
+  padding: 16px 24px 0;
+  border-top: 1px solid #374151;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* tablet: giới thiệu chiếm cả hàng, 2 cột liên hệ / chính sách bên dưới */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 16px;
+    gap: 24px;
+  }
+  .brand {
+    grid-column: 1 / -1;
+  }
+  .text {
+    max-width: none;
+  }
+  .copyright {
+    padding: 16px 16px 0;
+  }
+}
+
+/* mobile: 1 cột */
+@media (max-width: 560px) {
+  .footer {
+    padding: 24px 0;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .logo {
+    height: 44px;
+  }
+}

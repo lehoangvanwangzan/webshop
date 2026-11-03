@@ -33,3 +33,14 @@ export interface CreateCategoryPayload {
 }
 
 export type UpdateCategoryPayload = Partial<CreateCategoryPayload>;
+
+export interface CreateChildCategoryPayload {
+  category_id: number;
+  name: string;
+  slug: string;
+  image_url?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export type UpdateChildCategoryPayload = Partial<CreateChildCategoryPayload>;

@@ -21,47 +21,38 @@ export function PromoBanners() {
   if (isLoading || !hasBanners) return null;
 
   return (
-    <div
-      style={{
-        flex: 1,
-        borderRadius: 8,
-        overflow: 'hidden',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-      }}
-    >
+    <div className={styles.wrapper}>
       <Swiper
+        className={styles.swiper}
         modules={[Autoplay, Navigation, Pagination]}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         navigation
         pagination={{ clickable: true }}
         loop={banners.length > 1}
         speed={400}
-        style={{ width: '100%' }}
       >
-        {banners.map((banner) => (
-          <SwiperSlide key={banner.id}>
-            <div className={styles.slide}>
-              <img
-                src={resolveBannerImageUrl(banner.image_url!)}
-                alt={banner.title}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  display: 'block',
-                  cursor: banner.link_url ? 'pointer' : 'default',
-                }}
+        {banners.map((banner, index) => {
+          const src = resolveBannerImageUrl(banner.image_url!);
+          return (
+            <SwiperSlide key={banner.id}>
+              <div
+                className={`${styles.slide} ${banner.link_url ? styles.slideLink : ''}`}
                 onClick={() => {
                   if (banner.link_url) window.location.href = banner.link_url;
                 }}
-              />
-            </div>
-          </SwiperSlide>
-        ))}
+              >
+                {/* Nền mờ lấp khoảng trống — cùng URL nên trình duyệt chỉ tải ảnh 1 lần */}
+                <img src={src} alt="" aria-hidden className={styles.backdrop} />
+                <img
+                  src={src}
+                  alt={banner.title}
+                  className={styles.image}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                />
+              </div>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
     </div>
   );

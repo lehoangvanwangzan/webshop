@@ -14,6 +14,7 @@ import { CategoryAccordionList } from '@features/home/components/HomeCategories'
 import type { Category, ChildCategory } from '@features/categories/types/categories.types';
 import { COLORS } from '@shared/constants/colors';
 import { ROUTES } from '@routes/routes';
+import { useCart } from '@features/cart/hooks/useCart';
 
 const RED = COLORS.primary;
 
@@ -142,6 +143,8 @@ export function MainHeader() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [panelPos, setPanelPos] = useState({ top: 0, left: 24 });
   const { data: categories, isLoading } = useCategories();
+  const { data: cart } = useCart();
+  const cartCount = cart?.total_items ?? 0;
   const headerRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const navigate = useNavigate();
@@ -245,7 +248,7 @@ export function MainHeader() {
             {/* Cart chỉ hiện trên mobile (desktop dùng cart trong rightArea) */}
             <div className={styles.cartMobile}>
               <Link to={ROUTES.CART}>
-                <Badge count={0} showZero style={{ background: '#374151' }}>
+                <Badge count={cartCount} showZero overflowCount={99} style={{ background: '#374151' }}>
                   <div style={{ padding: 6, cursor: 'pointer' }}>
                     <ShoppingCartOutlined style={{ fontSize: 26, color: RED }} />
                   </div>
@@ -286,7 +289,7 @@ export function MainHeader() {
               </div>
             </div>
             <Link to={ROUTES.CART}>
-              <Badge count={0} showZero style={{ background: '#374151' }}>
+              <Badge count={cartCount} showZero overflowCount={99} style={{ background: '#374151' }}>
                 <div style={{ padding: 6, cursor: 'pointer' }}>
                   <ShoppingCartOutlined style={{ fontSize: 26, color: RED }} />
                 </div>

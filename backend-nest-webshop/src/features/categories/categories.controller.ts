@@ -2,6 +2,7 @@ import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe, UseGua
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateChildCategoryDto, UpdateChildCategoryDto } from './dto/create-child-category.dto';
 import { JwtAuthGuard } from '@features/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@shared/guards/roles.guard';
 import { Roles } from '@shared/decorators/roles.decorator';
@@ -47,5 +48,35 @@ export class CategoriesController {
   @Roles('admin')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.categoriesService.remove(id);
+  }
+
+  // ── ChildCategory endpoints ──
+
+  @Get('children/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  findAllChildren() {
+    return this.categoriesService.findAllChildren();
+  }
+
+  @Post('children')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  createChild(@Body() dto: CreateChildCategoryDto) {
+    return this.categoriesService.createChild(dto);
+  }
+
+  @Patch('children/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateChild(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateChildCategoryDto) {
+    return this.categoriesService.updateChild(id, dto);
+  }
+
+  @Delete('children/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  removeChild(@Param('id', ParseIntPipe) id: number) {
+    return this.categoriesService.removeChild(id);
   }
 }

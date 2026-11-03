@@ -28,7 +28,9 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { productsApi, resolveProductImageUrl } from '../api/products.api';
 import { ROUTES } from '@/routes/routes';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
+import { useAddToCart } from '@features/cart/hooks/useCart';
+import { getPriceInfo } from '../utils/price';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -60,9 +62,9 @@ export function ProductDetailPage() {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
   };
 
-  const handleAddToCart = () => {
-    message.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-  };
+  const { addToCart, isPending: isAddingToCart } = useAddToCart();
+  const handleAddToCart = (goToCart = false) =>
+    addToCart({ product_id: productId, quantity }, { goToCart });
 
   if (isLoading) {
     return (
@@ -93,6 +95,7 @@ export function ProductDetailPage() {
   }
 
   const productImages = product.images?.length ? product.images : [{ id: 0, image_url: '/placeholder.png' }];
+  const priceInfo = getPriceInfo(product);
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -158,7 +161,7 @@ export function ProductDetailPage() {
               </div>
 
               {/* Thumbnails */}
-              <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+              <div className="flex gap-3 overflow-x-auto custom-scrollbar">
                 {product.images?.map((img, idx) => {
                   const url = resolveProductImageUrl(img.image_url);
                   return (
@@ -192,16 +195,16 @@ export function ProductDetailPage() {
               <div className="mb-6 bg-gray-50 p-4 rounded-xl">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl font-black text-red-600">
-                    {formatPrice(product.discount_price || product.price)}
+                    {formatPrice(priceInfo.finalPrice)}
                   </span>
-                  {product.discount_price && (
+                  {priceInfo.originalPrice && (
                     <span className="text-sm text-gray-400 line-through">
-                      {formatPrice(product.price)}
+                      {formatPrice(priceInfo.originalPrice)}
                     </span>
                   )}
-                  {product.discount_price && (
+                  {priceInfo.discountPercent > 0 && (
                     <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded">
-                      -{Math.round((1 - product.discount_price / product.price) * 100)}%
+                      -{priceInfo.discountPercent}%
                     </span>
                   )}
                 </div>
@@ -233,12 +236,16 @@ export function ProductDetailPage() {
 
               <div className="flex flex-col gap-3 mt-auto">
                 <button
-                  onClick={handleAddToCart}
-                  className="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all active:scale-[0.98]"
+                  onClick={() => handleAddToCart()}
+                  disabled={isAddingToCart || product.stock <= 0}
+                  className="w-full disabled:opacity-50 disabled:cursor-not-allowed bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all active:scale-[0.98]"
                 >
-                  <ShoppingCart size={18} /> Thêm vào giỏ
+                  <ShoppingCart size={18} /> {product.stock <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
                 </button>
-                <button className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all uppercase text-sm tracking-wide shadow-lg shadow-blue-200 active:scale-[0.98]">
+                <button
+                  onClick={() => handleAddToCart(true)}
+                  disabled={isAddingToCart || product.stock <= 0}
+                  className="w-full disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all uppercase text-sm tracking-wide shadow-lg shadow-blue-200 active:scale-[0.98]">
                   Mua ngay
                 </button>
               </div>
@@ -441,7 +448,7 @@ export function ProductDetailPage() {
                       </div>
                       <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-2 h-10 group-hover:text-blue-600 transition-colors">{p.name}</h3>
                       <div className="flex items-center justify-between">
-                        <div className="text-red-600 font-black text-base">{formatPrice(p.discount_price || p.price)}</div>
+                        <div className="text-red-600 font-black text-base">{formatPrice(getPriceInfo(p).finalPrice)}</div>
                         <div className="bg-blue-50 text-blue-600 p-2 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
                           <ShoppingCart size={16} />
                         </div>

@@ -3,10 +3,8 @@ import { Link } from 'react-router';
 import type { Product } from '@/features/products/types/products.types';
 import { resolveProductImageUrl } from '@/features/products/api/products.api';
 import { ROUTES } from '@/routes/routes';
-
-function formatPrice(price: number) {
-  return price.toLocaleString('vi-VN') + 'đ';
-}
+import { useAddToCart } from '@/features/cart/hooks/useCart';
+import { formatVnd, getPriceInfo } from '@/features/products/utils/price';
 
 export function ProductCard({ product }: { product: Product }) {
   const imgUrl = product.images?.[0]?.image_url
@@ -14,6 +12,8 @@ export function ProductCard({ product }: { product: Product }) {
     : '/placeholder.png';
 
   const productDetailUrl = ROUTES.PRODUCT_DETAIL.replace(':id', product.id.toString());
+  const { addToCart, isPending } = useAddToCart();
+  const { finalPrice, originalPrice } = getPriceInfo(product);
 
   return (
     <div className="product-card group">
@@ -35,8 +35,16 @@ export function ProductCard({ product }: { product: Product }) {
         </Link>
 
         <div className="product-card__footer">
-          <div className="product-card__price">{formatPrice(product.price)}</div>
-          <button className="product-card__cart-btn" title="Thêm vào giỏ hàng">
+          <div>
+            <div className="product-card__price">{formatVnd(finalPrice)}</div>
+            {originalPrice && <div className="product-card__price-old">{formatVnd(originalPrice)}</div>}
+          </div>
+          <button
+            className="product-card__cart-btn"
+            title="Thêm vào giỏ hàng"
+            disabled={isPending}
+            onClick={() => addToCart({ product_id: product.id, quantity: 1 })}
+          >
             <ShoppingCartOutlined />
           </button>
         </div>

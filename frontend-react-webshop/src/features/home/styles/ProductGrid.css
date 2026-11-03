@@ -170,6 +170,13 @@
   color: #dc2626;
 }
 
+/* Giá gốc khi có khuyến mãi */
+.product-card__price-old {
+  font-size: 12px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
 /* Shopping cart button */
 .product-card__cart-btn {
   width: 40px;

@@ -11,6 +11,10 @@ import { ProductsModule } from '@features/products/products.module';
 import { UsersModule } from '@features/users/users.module';
 import { DashboardModule } from '@features/dashboard/dashboard.module';
 import { BannersModule } from '@features/banners/banners.module';
+import { CustomersModule } from '@features/customers/customers.module';
+import { CartModule } from '@features/cart/cart.module';
+import { PaymentsModule } from '@features/payments/payments.module';
+import { OrdersModule } from '@features/orders/orders.module';
 
 @Module({
   imports: [
@@ -24,6 +28,10 @@ import { BannersModule } from '@features/banners/banners.module';
     UsersModule,
     DashboardModule,
     BannersModule,
+    CustomersModule,
+    CartModule,
+    PaymentsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

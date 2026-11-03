@@ -1,6 +1,6 @@
 import apiClient from '@shared/lib/axios';
 import type { ApiResponse } from '@shared/types/api.types';
-import type { Category, CreateCategoryPayload, UpdateCategoryPayload } from '../types/categories.types';
+import type { Category, ChildCategory, CreateCategoryPayload, UpdateCategoryPayload, CreateChildCategoryPayload, UpdateChildCategoryPayload } from '../types/categories.types';
 
 export const categoriesApi = {
   findAllTree: async () => {
@@ -25,6 +25,24 @@ export const categoriesApi = {
   },
   remove: async (id: number) => {
     const { data } = await apiClient.delete<ApiResponse<{ deleted: boolean }>>(`/categories/${id}`);
+    return data.data;
+  },
+
+  // ChildCategory
+  findAllChildren: async () => {
+    const { data } = await apiClient.get<ApiResponse<ChildCategory[]>>('/categories/children/all');
+    return data.data;
+  },
+  createChild: async (payload: CreateChildCategoryPayload) => {
+    const { data } = await apiClient.post<ApiResponse<ChildCategory>>('/categories/children', payload);
+    return data.data;
+  },
+  updateChild: async (id: number, payload: UpdateChildCategoryPayload) => {
+    const { data } = await apiClient.patch<ApiResponse<ChildCategory>>(`/categories/children/${id}`, payload);
+    return data.data;
+  },
+  removeChild: async (id: number) => {
+    const { data } = await apiClient.delete<ApiResponse<{ deleted: boolean }>>(`/categories/children/${id}`);
     return data.data;
   },
 };

@@ -8,18 +8,9 @@ import 'swiper/css';
 import { useProducts } from '@/features/products/hooks/useProducts';
 import { resolveProductImageUrl } from '@/features/products/api/products.api';
 import { ROUTES } from '@/routes/routes';
+import { formatVnd, getPriceInfo } from '@/features/products/utils/price';
+import { useAddToCart } from '@/features/cart/hooks/useCart';
 import '../styles/HomePage.css';
-
-/**
- * Định dạng giá tiền theo tiêu chuẩn Việt Nam
- * @param price - Giá cần định dạng
- * @returns Giá đã định dạng với ký hiệu đ
- * @example
- * formatPrice(1000000) // "1.000.000đ"
- */
-function formatPrice(price: number) {
-  return price.toLocaleString('vi-VN') + 'đ';
-}
 
 /**
  * Component hiển thị các sản phẩm nổi bật trong carousel
@@ -45,6 +36,7 @@ export function FeaturedProducts() {
 
   /** Lấy danh sách sản phẩm nổi bật (is_featured: 1) và sản phẩm đang công khai (is_active: 1) */
   const { data, isLoading, isError } = useProducts({ is_featured: 1, is_active: 1, limit: 16 });
+  const { addToCart, isPending: isAddingToCart } = useAddToCart();
 
   return (
     <section className="featured-section">
@@ -118,6 +110,7 @@ export function FeaturedProducts() {
               : '/placeholder.png';
 
             const productDetailUrl = ROUTES.PRODUCT_DETAIL.replace(':id', p.id.toString());
+            const { finalPrice, originalPrice } = getPriceInfo(p);
 
             return (
               // Mỗi SwiperSlide là một slide trong carousel
@@ -136,12 +129,20 @@ export function FeaturedProducts() {
 
                   {/* Phần footer - giá và nút thêm vào giỏ */}
                   <div className="product-footer">
-                    {/* Hiển thị giá định dạng hoặc "Liên hệ" nếu không có giá */}
-                    <div className={`product-price ${!p.price ? 'contact' : ''}`}>
-                      {p.price ? formatPrice(p.price) : 'Liên hệ'}
+                    {/* Giá bán (ưu tiên giá khuyến mãi) hoặc "Liên hệ" nếu không có giá */}
+                    <div>
+                      <div className={`product-price ${!finalPrice ? 'contact' : ''}`}>
+                        {finalPrice ? formatVnd(finalPrice) : 'Liên hệ'}
+                      </div>
+                      {originalPrice && <div className="product-price-old">{formatVnd(originalPrice)}</div>}
                     </div>
                     {/* Nút thêm vào giỏ hàng */}
-                    <button className="add-to-cart-btn">
+                    <button
+                      className="add-to-cart-btn"
+                      title="Thêm vào giỏ hàng"
+                      disabled={isAddingToCart}
+                      onClick={() => addToCart({ product_id: p.id, quantity: 1 })}
+                    >
                       <ShoppingCartOutlined />
                     </button>
                   </div>

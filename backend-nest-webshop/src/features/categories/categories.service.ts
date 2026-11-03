@@ -5,6 +5,7 @@ import { Category } from './entities/category.entity';
 import { ChildCategory } from './entities/child-category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateChildCategoryDto, UpdateChildCategoryDto } from './dto/create-child-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -61,6 +62,40 @@ export class CategoriesService {
     const category = await this.categoryRepo.findOne({ where: { id } });
     if (!category) throw new NotFoundException(`Danh mục #${id} không tồn tại`);
     await this.categoryRepo.delete(id);
+    return { deleted: true };
+  }
+
+  // ── ChildCategory CRUD ──
+
+  findAllChildren(): Promise<ChildCategory[]> {
+    return this.childRepo.find({
+      relations: ['category'],
+      order: { category_id: 'ASC', sort_order: 'ASC', name: 'ASC' },
+    });
+  }
+
+  async createChild(dto: CreateChildCategoryDto): Promise<ChildCategory> {
+    const existing = await this.childRepo.findOne({ where: { slug: dto.slug } });
+    if (existing) throw new ConflictException(`Slug "${dto.slug}" đã tồn tại`);
+    const child = this.childRepo.create(dto);
+    return this.childRepo.save(child);
+  }
+
+  async updateChild(id: number, dto: UpdateChildCategoryDto): Promise<ChildCategory> {
+    const child = await this.childRepo.findOne({ where: { id } });
+    if (!child) throw new NotFoundException(`Danh mục con #${id} không tồn tại`);
+    if (dto.slug && dto.slug !== child.slug) {
+      const conflict = await this.childRepo.findOne({ where: { slug: dto.slug } });
+      if (conflict) throw new ConflictException(`Slug "${dto.slug}" đã tồn tại`);
+    }
+    Object.assign(child, dto);
+    return this.childRepo.save(child);
+  }
+
+  async removeChild(id: number): Promise<{ deleted: boolean }> {
+    const child = await this.childRepo.findOne({ where: { id } });
+    if (!child) throw new NotFoundException(`Danh mục con #${id} không tồn tại`);
+    await this.childRepo.delete(id);
     return { deleted: true };
   }
 }

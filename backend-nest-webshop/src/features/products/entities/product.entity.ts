@@ -11,6 +11,7 @@ import {
 import { Category } from '@features/categories/entities/category.entity';
 import { Brand } from '@features/brands/entities/brand.entity';
 import { ProductImage } from './product-image.entity';
+import { decimalTransformer } from '@shared/utils/decimal.transformer';
 
 @Entity('shop_products')
 export class Product {
@@ -32,10 +33,10 @@ export class Product {
   @Column({ type: 'longtext', nullable: true })
   description: string;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2 })
+  @Column({ type: 'decimal', precision: 15, scale: 2, transformer: decimalTransformer })
   price: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true })
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true, transformer: decimalTransformer })
   discount_price: number;
 
   @Column({ default: 0 })

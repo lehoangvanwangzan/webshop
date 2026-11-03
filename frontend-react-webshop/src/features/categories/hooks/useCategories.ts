@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { categoriesApi } from '../api/categories.api';
-import type { CreateCategoryPayload, UpdateCategoryPayload } from '../types/categories.types';
+import type { CreateCategoryPayload, UpdateCategoryPayload, CreateChildCategoryPayload, UpdateChildCategoryPayload } from '../types/categories.types';
 
 const STALE_TIME = 10 * 60 * 1000;
 
@@ -59,6 +59,47 @@ export function useDeleteCategory() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['categories'] });
       qc.invalidateQueries({ queryKey: ['categories-flat'] });
+    },
+  });
+}
+
+export function useChildCategories() {
+  return useQuery({
+    queryKey: ['child-categories'],
+    queryFn: () => categoriesApi.findAllChildren(),
+  });
+}
+
+export function useCreateChildCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateChildCategoryPayload) => categoriesApi.createChild(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['child-categories'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}
+
+export function useUpdateChildCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: UpdateChildCategoryPayload }) =>
+      categoriesApi.updateChild(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['child-categories'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}
+
+export function useDeleteChildCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => categoriesApi.removeChild(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['child-categories'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
     },
   });
 }
